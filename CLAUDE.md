@@ -35,7 +35,12 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Daten nur lokal im Browser (localStorage)
 - Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
-- Struktur: `src/main.ts` (Oberfläche), `src/types.ts` (Datentypen), `src/scoring.ts` (Rechenlogik), `src/storage.ts` (Speichern im localStorage) + `*.test.ts` daneben
+- Struktur (Tests als `*.test.ts` jeweils daneben):
+  - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
+  - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück
+  - `src/types.ts` – Datentypen; `src/scoring.ts` – Punkte/Statistik; `src/game.ts` – Spieler & Spielablauf
+  - `src/storage.ts` – Speichern im localStorage; `src/tap.ts` – Mehrfach-Tipp-Erkennung
+  - `src/dom.ts` – `el()`-Helfer zum Erzeugen von Elementen (Texte nie per `innerHTML`)
 
 ## Arbeitsweise
 
