@@ -1,5 +1,5 @@
 // Runde erfassen: pro Spieler Rest- und Tischkarten eingeben, dann weiterspielen oder beenden.
-import { seriesClass } from '../chart';
+import { colorDot } from '../colors';
 import { el } from '../dom';
 import { formatInt, formatSigned } from '../format';
 import { parseCardCount } from '../game';
@@ -110,7 +110,7 @@ export function roundScreen(
       el(
         'header',
         {},
-        el('h2', {}, el('span', { className: `player-dot ${seriesClass(p)}`, 'aria-hidden': 'true' }), name),
+        el('h2', {}, colorDot(game.colors[p]), el('span', { className: 'name' }, name)),
         el('span', { className: 'muted total' }, `Gesamt: ${formatInt(currentTotals[p])}`),
       ),
       el('div', { className: 'fields' }, ...fields),

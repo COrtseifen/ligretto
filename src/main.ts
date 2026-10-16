@@ -22,7 +22,7 @@ let view: 'round' | 'standings' = 'round';
 function render() {
   let screen: HTMLElement;
   if (!game) {
-    screen = startScreen({ onStart: (names) => update(createGame(names)) });
+    screen = startScreen({ onStart: (names, colors) => update(createGame(names, colors)) });
   } else if (game.finished || view === 'standings') {
     screen = overviewScreen(game, { onBack: () => show('round'), onNewGame: () => update(null) });
   } else {

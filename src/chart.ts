@@ -1,19 +1,16 @@
 // Liniendiagramm des Punkteverlaufs als selbst gezeichnetes SVG (keine Bibliothek).
-// Farben kommen aus CSS-Klassen (.series-1 … .series-6), damit Hell/Dunkel automatisch passt.
+// Jede Linie trägt die Kartenfarbe des Spielers; schwer sichtbare Farben bekommen einen Kontrastring.
 import { labelEvery, labelsCollide, linearScale, niceTicks } from './chartMath';
+import { withColor } from './colors';
 import { el } from './dom';
 import { formatInt } from './format';
 
 export interface Series {
   name: string;
-  /** Feste Farbe des Spielers (0–5), unabhängig von seiner Platzierung. */
-  colorIndex: number;
+  /** Kartenfarbe des Spielers (Hex). */
+  color: string;
   /** Punktestand nach jeder Runde, beginnend mit 0 vor der ersten Runde. */
   values: number[];
-}
-
-export function seriesClass(colorIndex: number): string {
-  return `series-${colorIndex + 1}`;
 }
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -44,12 +41,26 @@ function measureText(text: string, font: string): number {
 }
 
 export function lineChart(series: Series[]): HTMLElement {
+  /** Hervorgehobener Spieler (Tipp auf die Legende), sonst `null`. */
+  let highlighted: number | null = null;
+
+  const legendButtons = series.map((s, i) => {
+    const button = el(
+      'button',
+      { type: 'button', className: 'legend-item', 'aria-pressed': 'false' },
+      withColor(el('span', { className: 'legend-key', 'aria-hidden': 'true' }), s.color),
+      s.name,
+    );
+    button.addEventListener('click', () => {
+      highlighted = highlighted === i ? null : i;
+      applyHighlight();
+    });
+    return button;
+  });
   const legend = el(
     'ul',
-    { className: 'chart-legend' },
-    ...series.map((s) =>
-      el('li', {}, el('span', { className: `legend-key ${seriesClass(s.colorIndex)}` }), s.name),
-    ),
+    { className: 'chart-legend', 'aria-label': 'Legende – antippen hebt einen Spieler hervor' },
+    ...legendButtons.map((b) => el('li', {}, b)),
   );
 
   const tooltip = el('div', { className: 'chart-tooltip', hidden: true });
@@ -59,6 +70,15 @@ export function lineChart(series: Series[]): HTMLElement {
   let drawnWidth = 0;
   let selected: number | null = null;
   let showAt: (index: number | null) => void = () => {};
+  let seriesGroups: SVGGElement[] = [];
+  let topLayer: SVGElement | null = null;
+
+  /** Andere Linien blass, die gewählte nach vorn. */
+  function applyHighlight() {
+    legendButtons.forEach((b, i) => b.setAttribute('aria-pressed', String(highlighted === i)));
+    seriesGroups.forEach((g, i) => g.classList.toggle('dimmed', highlighted !== null && highlighted !== i));
+    if (highlighted !== null && topLayer) topLayer.before(seriesGroups[highlighted]);
+  }
 
   const observer = new ResizeObserver(() => {
     if (!figure.isConnected) return observer.disconnect();
@@ -98,10 +118,15 @@ export function lineChart(series: Series[]): HTMLElement {
     });
 
     // Gitterlinien und y-Beschriftung; die Nulllinie etwas kräftiger.
+    // War jemand im Minus, wird die Nulllinie zur deutlichen Trennlinie zwischen Plus und Minus.
+    const hasNegative = Math.min(...all) < 0;
     for (const t of ticks) {
+      const isZero = t === 0;
+      const lineClass = isZero ? (hasNegative ? 'zero-line' : 'baseline') : 'grid';
+      const labelClass = isZero && hasNegative ? 'axis-label zero-label' : 'axis-label';
       root.append(
-        svg('line', { class: t === 0 ? 'baseline' : 'grid', x1: left, x2: right, y1: y(t), y2: y(t) }),
-        svg('text', { class: 'axis-label', x: left - LABEL_GAP, y: y(t), 'text-anchor': 'end', 'dominant-baseline': 'middle' }, formatInt(t)),
+        svg('line', { class: lineClass, x1: left, x2: right, y1: y(t), y2: y(t) }),
+        svg('text', { class: labelClass, x: left - LABEL_GAP, y: y(t), 'text-anchor': 'end', 'dominant-baseline': 'middle' }, formatInt(t)),
       );
     }
 
@@ -114,26 +139,36 @@ export function lineChart(series: Series[]): HTMLElement {
     const crosshair = svg('line', { class: 'crosshair', y1: MARGIN.top, y2: bottom, visibility: 'hidden' });
     root.append(crosshair);
 
-    for (const s of series) {
+    // Pro Spieler eine Gruppe: Kontrastring (nur sichtbar, wo nötig), Linie, Endpunkt, Name.
+    seriesGroups = series.map((s) => {
       const d = s.values.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(v)}`).join('');
-      const last = s.values[count - 1];
-      root.append(
-        svg('path', { class: `line ${seriesClass(s.colorIndex)}`, d }),
-        svg('circle', { class: `dot ${seriesClass(s.colorIndex)}`, cx: x(count - 1), cy: y(last), r: 4 }),
+      const ex = x(count - 1);
+      const ey = y(s.values[count - 1]);
+      const g = withColor(svg('g', { class: 'series' }), s.color);
+      g.append(
+        svg('path', { class: 'line-halo', d }),
+        svg('path', { class: 'line', d }),
+        svg('circle', { class: 'dot-halo', cx: ex, cy: ey, r: 6 }),
+        svg('circle', { class: 'dot', cx: ex, cy: ey, r: 4 }),
       );
       if (endLabels) {
-        root.append(
-          svg('text', { class: 'end-label', x: x(count - 1) + LABEL_GAP, y: y(last), 'dominant-baseline': 'middle' }, s.name),
-        );
+        g.append(svg('text', { class: 'end-label', x: ex + LABEL_GAP, y: ey, 'dominant-baseline': 'middle' }, s.name));
       }
-    }
+      return g;
+    });
+    root.append(...seriesGroups);
 
     // Markierungspunkte für die gewählte Runde (über den Linien).
-    const focusDots = series.map((s) =>
-      svg('circle', { class: `dot ${seriesClass(s.colorIndex)}`, r: 4, visibility: 'hidden' }),
-    );
-    root.append(...focusDots);
+    const focusDots = series.map((s) => {
+      const g = withColor(svg('g', { visibility: 'hidden' }), s.color);
+      g.append(svg('circle', { class: 'dot-halo', r: 6 }), svg('circle', { class: 'dot', r: 4 }));
+      return g;
+    });
+    topLayer = svg('g');
+    topLayer.append(...focusDots);
+    root.append(topLayer);
     plot.prepend(root);
+    applyHighlight();
 
     showAt = (index) => {
       selected = index;
@@ -148,8 +183,7 @@ export function lineChart(series: Series[]): HTMLElement {
       crosshair.setAttribute('x2', String(cx));
       crosshair.setAttribute('visibility', 'visible');
       focusDots.forEach((dot, i) => {
-        dot.setAttribute('cx', String(cx));
-        dot.setAttribute('cy', String(y(series[i].values[index])));
+        dot.setAttribute('transform', `translate(${cx},${y(series[i].values[index])})`);
         dot.setAttribute('visibility', 'visible');
       });
 
@@ -160,7 +194,7 @@ export function lineChart(series: Series[]): HTMLElement {
           el(
             'li',
             {},
-            el('span', { className: `line-key ${seriesClass(s.colorIndex)}` }),
+            withColor(el('span', { className: 'line-key' }), s.color),
             el('strong', {}, formatInt(s.values[index])),
             el('span', { className: 'muted' }, s.name),
           ),

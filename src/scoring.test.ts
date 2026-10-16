@@ -9,12 +9,14 @@ import {
   roundPoints,
   totals,
 } from './scoring';
+import { COLORS } from './colors';
 import type { Game } from './types';
 
 /** Kleines Testspiel: Runden als [tisch, rest]-Paare pro Spieler. */
 function makeGame(players: string[], rounds: [number, number][][]): Game {
   return {
     players,
+    colors: COLORS.slice(0, players.length).map((c) => c.hex),
     rounds: rounds.map((round) => round.map(([tisch, rest]) => ({ tisch, rest }))),
     finished: false,
   };

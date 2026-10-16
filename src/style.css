@@ -9,19 +9,17 @@
   --text: #000000;
   --muted: rgba(60, 60, 67, 0.6);
   --separator: rgba(60, 60, 67, 0.29);
-  --accent: #ff3b30;
+  /* Neutraler Akzent (schwarz bzw. weiß): Farbe tragen nur die Spieler,
+     Rot = Minuspunkte/Fehler, Grün = Pluspunkte. */
+  --accent: #000000;
   --accent-text: #ffffff;
   --error: #d70015; /* dunkleres Rot für Text auf Weiß – besser lesbar */
   --positive: #248a3d;
   --bar: rgba(242, 242, 247, 0.72); /* Glas-Leiste unten */
 
-  /* Spielerfarben (feste Reihenfolge, für Farbsehschwäche geprüft – je Modus eigene Stufen). */
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
-  --series-3: #1baf7a;
-  --series-4: #eda100;
-  --series-5: #e87ba4;
-  --series-6: #008300;
+  /* Kontrastring um Spielerfarben, die auf der Fläche untergehen (siehe colors.ts → needsRing). */
+  --ring-on-light: rgba(0, 0, 0, 0.45);
+  --ring-on-dark: rgba(255, 255, 255, 0.7);
   --grid: #e5e5ea;
   --baseline: #c7c7cc;
 
@@ -47,17 +45,12 @@
     --text: #ffffff;
     --muted: rgba(235, 235, 245, 0.6);
     --separator: rgba(84, 84, 88, 0.65);
-    --accent: #ff453a;
+    --accent: #ffffff;
+    --accent-text: #000000;
     --error: #ff6961;
     --positive: #30d158;
     --bar: rgba(0, 0, 0, 0.6);
 
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #c98500;
-    --series-5: #d55181;
-    --series-6: #008300;
     --grid: #2c2c2e;
     --baseline: #48484a;
   }
@@ -142,17 +135,28 @@ h1 + .section-header {
 /* Überschrift mit Navigationsknopf rechts daneben. */
 .title-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  margin: 0.5rem 0 1rem;
 }
 
+.title-row h1 {
+  margin: 0;
+}
+
+/* Ohne Akzentfarbe als graue Pille, damit erkennbar bleibt, dass man tippen kann. */
 .nav-btn {
-  min-height: 2.75rem;
-  padding: 0 0.25rem;
+  position: relative;
+  align-self: center;
+  min-height: 2.25rem;
+  padding: 0 1rem;
   border: none;
-  background: none;
+  border-radius: 999px;
+  background: var(--fill);
   color: var(--accent);
+  font-weight: 600;
+  font-size: 0.95rem;
   cursor: pointer;
   touch-action: manipulation;
   transition: opacity 100ms ease-out;
@@ -162,25 +166,203 @@ h1 + .section-header {
   opacity: 0.5;
 }
 
+/* Unsichtbar vergrößerte Trefferfläche (mind. 44 px hoch) für den Daumen. */
+.nav-btn::after {
+  content: '';
+  position: absolute;
+  inset: -0.4rem -0.25rem;
+}
+
 /* ---------- Spielerfarben ---------- */
 
-/* Eine Klasse setzt die Farbe als Variable --c; Punkt, Linie und Legende nutzen sie. */
-.series-1 { --c: var(--series-1); }
-.series-2 { --c: var(--series-2); }
-.series-3 { --c: var(--series-3); }
-.series-4 { --c: var(--series-4); }
-.series-5 { --c: var(--series-5); }
-.series-6 { --c: var(--series-6); }
+/* Elemente in Spielerfarbe (Klasse .pc, gesetzt von withColor() in colors.ts):
+   --c ist die Kartenfarbe, --ring der Kontrastring – nur für Farben, die im aktuellen Modus
+   auf der Fläche untergehen, sonst unsichtbar. Kinder erben beide Variablen. */
+.pc {
+  --ring: var(--ring-l, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  .pc {
+    --ring: var(--ring-d, transparent);
+  }
+}
 
 .player-dot {
   display: inline-block;
   flex: none;
-  width: 0.6rem;
-  height: 0.6rem;
+  width: 0.65rem;
+  height: 0.65rem;
   margin-right: 0.45rem;
   border-radius: 50%;
   background: var(--c);
+  box-shadow: 0 0 0 1px var(--ring);
   vertical-align: 0.05em;
+}
+
+/* Farbkreis vor dem Namen auf dem Startbildschirm – öffnet die Farbauswahl. */
+.color-btn {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: 0.5rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.color-btn::before {
+  content: '';
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow:
+    0 0 0 1px var(--ring),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 100ms ease-out;
+}
+
+.color-btn:active::before {
+  transform: scale(0.88);
+}
+
+/* ---------- Farbauswahl (Blatt von unten) ---------- */
+
+.sheet {
+  width: 100%;
+  max-width: 40rem;
+  max-height: 85dvh;
+  margin: auto auto 0;
+  padding: 0.5rem 1rem max(1.25rem, env(safe-area-inset-bottom));
+  border: none;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--bg);
+  color: var(--text);
+  overflow-y: auto;
+  animation: sheet-in 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sheet::backdrop {
+  background: rgba(0, 0, 0, 0.4);
+  animation: fade-in 200ms ease-out;
+}
+
+/* Auf großen Bildschirmen als Fenster in der Mitte statt als Blatt unten. */
+@media (min-width: 48rem) and (min-height: 36rem) {
+  .sheet {
+    margin: auto;
+    border-radius: 1.25rem;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+.sheet-header {
+  position: sticky;
+  top: -0.5rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: -0.5rem -1rem 0;
+  padding: 0.75rem 1rem 0.25rem;
+  background: var(--bg);
+}
+
+.sheet-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet .section-header {
+  margin-top: 1rem;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem;
+  border-radius: var(--radius-group);
+  background: var(--surface);
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  padding: 0.25rem 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.swatch-color {
+  position: relative;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow:
+    0 0 0 1px var(--ring),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+  transition: transform 100ms ease-out;
+}
+
+.swatch:active:not(:disabled) .swatch-color {
+  transform: scale(0.9);
+}
+
+/* Aktuelle Farbe: Ring in Akzentfarbe mit Abstand. */
+.swatch[aria-pressed='true'] .swatch-color {
+  box-shadow:
+    0 0 0 3px var(--surface),
+    0 0 0 5px var(--text);
+}
+
+.swatch-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* Vergeben: blass, mit Name des Spielers statt Farbname. */
+.swatch:disabled {
+  cursor: not-allowed;
+}
+
+.swatch:disabled .swatch-color {
+  opacity: 0.3;
+}
+
+.swatch:disabled .swatch-label {
+  font-style: italic;
 }
 
 /* Weiße, abgerundete Fläche auf grauem Grund. */
@@ -297,6 +479,11 @@ input {
   background: var(--separator);
 }
 
+/* Trennlinie beginnt wie in iOS erst beim Text, nicht unter dem Farbkreis. */
+.player-list li::after {
+  left: 4.25rem;
+}
+
 .player-list li:last-child::after {
   display: none;
 }
@@ -399,15 +586,22 @@ input {
 .player-card header {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.6rem;
 }
 
 .player-card h2 {
+  display: flex;
+  align-items: center;
+  min-width: 0;
   margin: 0;
   font-size: 1.1rem;
   font-weight: 600;
+}
+
+/* Nur der Name wird bei Überlänge mit „…" gekürzt – der Farbpunkt samt Ring bleibt ganz. */
+.player-card h2 .name {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -541,10 +735,28 @@ input {
   color: var(--muted);
 }
 
-.chart-legend li {
+/* Legendeneinträge sind Buttons: antippen hebt den Spieler im Diagramm hervor. */
+.legend-item {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0 0.5rem;
+  margin: 0 -0.5rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color 120ms ease-out;
+}
+
+.legend-item[aria-pressed='true'] {
+  background: var(--fill);
+  color: var(--text);
+  font-weight: 600;
 }
 
 /* Legende zeigt dieselbe Form wie das Diagramm: eine kurze Linie. */
@@ -552,9 +764,10 @@ input {
 .line-key {
   flex: none;
   width: 0.9rem;
-  height: 2px;
-  border-radius: 1px;
+  height: 3px;
+  border-radius: 1.5px;
   background: var(--c);
+  box-shadow: 0 0 0 1px var(--ring);
 }
 
 .chart-plot {
@@ -593,6 +806,18 @@ input {
   stroke: var(--muted);
 }
 
+/* Nulllinie, wenn es Minuspunkte gab: kräftiger und dunkler als das Gitter. */
+.chart .zero-line {
+  stroke: var(--text);
+  stroke-width: 1.5px;
+  opacity: 0.55;
+}
+
+.chart .zero-label {
+  fill: var(--text);
+  font-weight: 700;
+}
+
 .chart .axis-label {
   font-size: 12px;
   fill: var(--muted);
@@ -604,12 +829,22 @@ input {
   fill: var(--text);
 }
 
-.chart .line {
+.chart .line,
+.chart .line-halo {
   fill: none;
-  stroke: var(--c);
-  stroke-width: 2px;
   stroke-linejoin: round;
   stroke-linecap: round;
+}
+
+.chart .line {
+  stroke: var(--c);
+  stroke-width: 2px;
+}
+
+/* Breitere Linie darunter in Ringfarbe = feiner Rand um schwer sichtbare Farben. */
+.chart .line-halo {
+  stroke: var(--ring);
+  stroke-width: 4px;
 }
 
 /* Punkte mit Ring in Kartenfarbe, damit sie auf kreuzenden Linien lesbar bleiben. */
@@ -617,6 +852,19 @@ input {
   fill: var(--c);
   stroke: var(--surface);
   stroke-width: 2px;
+}
+
+.chart .dot-halo {
+  fill: var(--ring);
+}
+
+/* Hervorheben: andere Spieler treten zurück. */
+.chart .series {
+  transition: opacity 150ms ease-out;
+}
+
+.chart .series.dimmed {
+  opacity: 0.15;
 }
 
 .chart-tooltip {
@@ -722,7 +970,9 @@ input {
 /* Rahmen in der Farbe des Spielers (nach innen gezeichnet, damit sich die Größe nicht ändert). */
 .stat-card {
   padding: 0.9rem 1rem 0.5rem;
-  box-shadow: inset 0 0 0 2px var(--c);
+  box-shadow:
+    inset 0 0 0 2px var(--c),
+    inset 0 0 0 3px var(--ring);
 }
 
 .stat-card h3 {

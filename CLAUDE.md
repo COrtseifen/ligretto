@@ -14,17 +14,21 @@ Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespiel
 
 ## Funktionen (erste Version)
 
-- Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–6 möglich)
-  - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → „Christian", „Sarah", „Timo", „Steffi" (kein sichtbarer Button)
+- Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–12 möglich – eine Kartenfarbe pro Spieler)
+  - Jeder Spieler wählt eine Kartenfarbe aus den 3 Ligretto-Boxen (Blau, Grün, Rot mit je 4 Farben), keine doppelt;
+    neue Spieler bekommen automatisch die nächste freie Farbe
+  - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → Christian (Lila), Sarah (Pink),
+    Timo (Braun), Steffi (Grün) (kein sichtbarer Button)
 - Runde erfassen: pro Spieler Restkarten und Tischkarten als große Zahlenfelder (Zifferntastatur, min/max geprüft)
   - Reihenfolge Restkarten → Tischkarten: Restkarten stehen sofort fest, Tischkarten müssen erst sortiert werden
   - Zwischenstand der Runde wird bei jeder Eingabe gespeichert
   - Rundenpunkte werden sofort angezeigt, bevor die Runde gespeichert wird
   - Danach „Weiterspielen" (nur wenn alle Werte gültig → neue Runde) oder „Spiel beenden" (→ Endübersicht)
 - Übersicht: Gesamtstand pro Spieler, sortiert nach Platzierung
-- Rundenverlauf als Tabelle (wie auf dem Block) und als Liniendiagramm (eigenes SVG, eine Farbe pro Spieler)
-- Endübersicht mit Statistik pro Spieler: höchstes Rundenplus, meiste Tischkarten in einer Runde,
-  größte Minuspunkte, Anzahl beendeter Runden (Restkarten = 0), Ø Tischkarten, Ø Restkarten
+- Rundenverlauf als Tabelle (wie auf dem Block) und als Liniendiagramm (eigenes SVG, Linie in Spielerfarbe;
+  Antippen der Legende hebt einen Spieler hervor; Nulllinie kräftiger, sobald es Minuspunkte gab)
+- Endübersicht mit Statistik pro Spieler (Rahmen in Spielerfarbe): höchstes Rundenplus, meiste Tischkarten
+  in einer Runde, größte Minuspunkte, Anzahl beendeter Runden (Restkarten = 0), Ø Restkarten, Ø Tischkarten
 - Letzte Runde bearbeiten oder löschen (Tippfehler korrigieren)
 - Spielstand wird automatisch gespeichert (localStorage) und überlebt Neuladen/Schließen
 
@@ -37,10 +41,13 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Daten nur lokal im Browser (localStorage)
 - Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
-- Look im iOS-Stil: Apple-Systemfarben, gruppierte weiße Flächen, Akzent Systemrot;
+- Look im iOS-Stil: Apple-Systemfarben, gruppierte weiße Flächen;
   Design-Leitlinien im Skill `.claude/skills/apple-design`
-- Spielerfarben: feste Reihenfolge `--series-1…6`, gegen Farbsehschwäche geprüft (dataviz-Skill);
-  die Farbe folgt dem Spieler (Eingabereihenfolge), nicht der Platzierung
+- Akzent neutral (schwarz hell / weiß dunkel). Farbe tragen nur die Spieler;
+  Rot nur für Minuspunkte/Fehler, Grün nur für Pluspunkte
+- Spielerfarben = Kartenfarben (`src/colors.ts`), die Farbe folgt dem Spieler, nicht der Platzierung;
+  Farben mit zu wenig Kontrast zur Fläche bekommen automatisch einen feinen Kontrastring (`withColor()`)
+- Speicherformat versioniert (aktuell 2); ältere Stände werden beim Laden umgewandelt, nicht verworfen
 - Struktur (Tests als `*.test.ts` jeweils daneben):
   - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
   - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück
@@ -49,6 +56,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
   - `src/dom.ts` – `el()`-Helfer zum Erzeugen von Elementen (Texte nie per `innerHTML`)
   - `src/chart.ts` – Verlaufsdiagramm (eigenes SVG); `src/chartMath.ts` – Achsen/Abstände
   - `src/format.ts` – Zahlenformat (echtes Minuszeichen „−", deutsches Komma)
+  - `src/colors.ts` – Kartenfarben, Farbvergabe, Kontrastring; `src/screens/colorPicker.ts` – Farbauswahl
 
 ## Arbeitsweise
 

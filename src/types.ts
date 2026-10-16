@@ -11,6 +11,8 @@ export type Round = Entry[];
 
 export interface Game {
   players: string[];
+  /** Kartenfarbe (Hex aus `COLORS`) pro Spieler, gleiche Reihenfolge wie `players`. */
+  colors: string[];
   rounds: Round[];
   finished: boolean;
 }

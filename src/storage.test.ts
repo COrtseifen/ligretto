@@ -25,6 +25,7 @@ function fakeStore(): KeyValueStore & { data: Map<string, string> } {
 
 const game: Game = {
   players: ['Anna', 'Ben'],
+  colors: ['#603584', '#E01C8A'],
   rounds: [[{ tisch: 12, rest: 0 }, { tisch: 6, rest: 5 }]],
   finished: false,
 };
@@ -62,8 +63,23 @@ describe('storage', () => {
   it('ignoriert Daten mit falscher Form', () => {
     const store = fakeStore();
     const broken = { ...game, rounds: [[{ tisch: 12, rest: 0 }]] }; // ein Eintrag fehlt
-    store.setItem(STORAGE_KEY, JSON.stringify({ version: 1, game: broken }));
+    store.setItem(STORAGE_KEY, JSON.stringify({ version: 2, game: broken }));
     expect(loadGame(store)).toBeNull();
+  });
+
+  it('ignoriert doppelte oder unbekannte Farben', () => {
+    const store = fakeStore();
+    store.setItem(STORAGE_KEY, JSON.stringify({ version: 2, game: { ...game, colors: ['#603584', '#603584'] } }));
+    expect(loadGame(store)).toBeNull();
+    store.setItem(STORAGE_KEY, JSON.stringify({ version: 2, game: { ...game, colors: ['#603584', '#123456'] } }));
+    expect(loadGame(store)).toBeNull();
+  });
+
+  it('wandelt ein Spiel aus Version 1 (ohne Farben) um', () => {
+    const store = fakeStore();
+    const { colors: _, ...v1Game } = game;
+    store.setItem(STORAGE_KEY, JSON.stringify({ version: 1, game: v1Game }));
+    expect(loadGame(store)).toEqual({ ...v1Game, colors: ['#DD9D31', '#E6633C'] });
   });
 
   it('meldet false, wenn der Speicher voll ist', () => {

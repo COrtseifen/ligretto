@@ -1,6 +1,7 @@
 // Spielstand während des Spiels bzw. Endübersicht nach „Spiel beenden":
 // Rangliste, Verlaufsdiagramm, Rundentabelle (wie auf dem Block) und – am Ende – Statistik.
-import { lineChart, seriesClass } from '../chart';
+import { lineChart } from '../chart';
+import { colorDot, withColor } from '../colors';
 import { el } from '../dom';
 import { formatDecimal, formatInt, formatSigned } from '../format';
 import { cumulativeScores, playerStats, ranking, roundPoints, totals, type PlayerStats } from '../scoring';
@@ -11,11 +12,6 @@ export interface OverviewActions {
   onBack(): void;
   /** Neues Spiel beginnen (beendetes Spiel). */
   onNewGame(): void;
-}
-
-/** Farbpunkt, der den Spieler kennzeichnet – Text bleibt in Textfarbe. */
-function dot(player: number): HTMLElement {
-  return el('span', { className: `player-dot ${seriesClass(player)}`, 'aria-hidden': 'true' });
 }
 
 function section(title: string, ...content: HTMLElement[]): HTMLElement[] {
@@ -31,7 +27,7 @@ function rankingList(game: Game): HTMLElement {
         'li',
         {},
         el('span', { className: 'place' }, `${s.place}.`),
-        dot(s.player),
+        colorDot(game.colors[s.player]),
         el('span', { className: 'name' }, s.name),
         el('span', { className: 'total' }, formatInt(s.total)),
       ),
@@ -45,7 +41,7 @@ function roundsTable(game: Game): HTMLElement {
     'tr',
     {},
     el('th', { scope: 'col' }, 'Runde'),
-    ...game.players.map((name, p) => el('th', { scope: 'col' }, dot(p), name)),
+    ...game.players.map((name, p) => el('th', { scope: 'col' }, colorDot(game.colors[p]), name)),
   );
   const rows = game.rounds.map((round, r) =>
     el(
@@ -86,10 +82,11 @@ function statsCards(game: Game): HTMLElement {
     { className: 'stats-grid' },
     ...ranking(game).map(({ player, name, place }) => {
       const s = stats[player]!;
-      return el(
+      const color = game.colors[player];
+      const card = el(
         'section',
-        { className: `group stat-card ${seriesClass(player)}` },
-        el('h3', {}, dot(player), el('span', { className: 'name' }, name), el('span', { className: 'muted' }, `${place}. Platz`)),
+        { className: 'group stat-card' },
+        el('h3', {}, colorDot(color), el('span', { className: 'name' }, name), el('span', { className: 'muted' }, `${place}. Platz`)),
         el(
           'dl',
           {},
@@ -98,6 +95,7 @@ function statsCards(game: Game): HTMLElement {
           ),
         ),
       );
+      return withColor(card, color); // Rahmen in der Spielerfarbe
     }),
   );
 }
@@ -112,7 +110,7 @@ export function overviewScreen(game: Game, { onBack, onNewGame }: OverviewAction
 
   if (n > 0) {
     const scores = cumulativeScores(game);
-    const series = game.players.map((name, p) => ({ name, colorIndex: p, values: scores[p] }));
+    const series = game.players.map((name, p) => ({ name, color: game.colors[p], values: scores[p] }));
     content.push(
       ...section('Verlauf', el('div', { className: 'group chart-card' }, lineChart(series))),
       ...section('Runden', roundsTable(game)),

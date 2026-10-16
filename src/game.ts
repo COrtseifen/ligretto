@@ -1,12 +1,19 @@
 // Spielverwaltung ohne Bezug zur Oberfläche: Spieler, Spiel anlegen, Runden hinzufügen.
+import { COLORS, duplicateColorIndices, isKnownColor } from './colors';
 import type { Game, Round, RoundDraft } from './types';
 
 export const MIN_PLAYERS = 2;
-export const MAX_PLAYERS = 6;
+/** Eine Kartenfarbe pro Spieler – mehr Spieler als Farben geht nicht. */
+export const MAX_PLAYERS = COLORS.length;
 export const DEFAULT_PLAYER_COUNT = 4;
 
 /** Wird über die versteckte Geste auf dem Startbildschirm eingetragen. */
-export const PRESET_PLAYERS = ['Christian', 'Sarah', 'Timo', 'Steffi'];
+export const PRESET_PLAYERS: readonly { name: string; color: string }[] = [
+  { name: 'Christian', color: '#603584' },
+  { name: 'Sarah', color: '#E01C8A' },
+  { name: 'Timo', color: '#5B3A10' },
+  { name: 'Steffi', color: '#7BA93D' },
+];
 
 /** Entfernt Leerzeichen am Rand; leere Namen werden zu „Spieler 1", „Spieler 2", … */
 export function normalizeNames(names: string[]): string[] {
@@ -19,8 +26,11 @@ export function duplicateIndices(names: string[]): number[] {
   return keys.flatMap((key, i) => (keys.indexOf(key) !== keys.lastIndexOf(key) ? [i] : []));
 }
 
-export function createGame(names: string[]): Game {
-  return { players: normalizeNames(names), rounds: [], finished: false };
+export function createGame(names: string[], colors: string[]): Game {
+  if (colors.length !== names.length) throw new Error('Jeder Spieler braucht eine Farbe');
+  if (!colors.every(isKnownColor)) throw new Error('Unbekannte Farbe');
+  if (duplicateColorIndices(colors).length > 0) throw new Error('Farbe doppelt vergeben');
+  return { players: normalizeNames(names), colors: [...colors], rounds: [], finished: false };
 }
 
 /** Hängt eine Runde an. Gibt ein neues Spielobjekt zurück, das alte bleibt unverändert. */

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { COLORS } from './colors';
 import {
   addRound,
   createGame,
@@ -8,6 +9,11 @@ import {
   normalizeNames,
   parseCardCount,
 } from './game';
+
+/** Spiel mit den ersten n Kartenfarben. */
+function newGame(names: string[]) {
+  return createGame(names, COLORS.slice(0, names.length).map((c) => c.hex));
+}
 
 describe('normalizeNames', () => {
   it('entfernt Leerzeichen am Rand', () => {
@@ -35,11 +41,18 @@ describe('duplicateIndices', () => {
 
 describe('createGame', () => {
   it('legt ein leeres, laufendes Spiel an', () => {
-    expect(createGame(['Anna', ''])).toEqual({
+    expect(createGame(['Anna', ''], ['#603584', '#E01C8A'])).toEqual({
       players: ['Anna', 'Spieler 2'],
+      colors: ['#603584', '#E01C8A'],
       rounds: [],
       finished: false,
     });
+  });
+
+  it('lehnt doppelte, unbekannte oder fehlende Farben ab', () => {
+    expect(() => createGame(['Anna', 'Ben'], ['#603584', '#603584'])).toThrow();
+    expect(() => createGame(['Anna', 'Ben'], ['#603584', '#123456'])).toThrow();
+    expect(() => createGame(['Anna', 'Ben'], ['#603584'])).toThrow();
   });
 });
 
@@ -50,26 +63,26 @@ describe('addRound', () => {
   ];
 
   it('hängt die Runde an, ohne das alte Spiel zu verändern', () => {
-    const game = createGame(['Anna', 'Ben']);
+    const game = newGame(['Anna', 'Ben']);
     const next = addRound(game, round);
     expect(next.rounds).toEqual([round]);
     expect(game.rounds).toEqual([]);
   });
 
   it('lehnt Runden mit falscher Spielerzahl ab', () => {
-    const game = createGame(['Anna', 'Ben', 'Cleo']);
+    const game = newGame(['Anna', 'Ben', 'Cleo']);
     expect(() => addRound(game, round)).toThrow();
   });
 });
 
 describe('finishGame', () => {
   it('markiert das Spiel als beendet', () => {
-    expect(finishGame(createGame(['Anna', 'Ben'])).finished).toBe(true);
+    expect(finishGame(newGame(['Anna', 'Ben'])).finished).toBe(true);
   });
 });
 
 describe('draftMatches', () => {
-  const game = createGame(['Anna', 'Ben']);
+  const game = newGame(['Anna', 'Ben']);
   const entries = [
     { tisch: '5', rest: '' },
     { tisch: '', rest: '' },
