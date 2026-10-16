@@ -1,5 +1,5 @@
 // Liniendiagramm des Punkteverlaufs als selbst gezeichnetes SVG (keine Bibliothek).
-// Jede Linie trägt die Kartenfarbe des Spielers; schwer sichtbare Farben bekommen einen Kontrastring.
+// Jede Linie trägt die Kartenfarbe des Spielers.
 import { labelEvery, labelsCollide, linearScale, niceTicks } from './chartMath';
 import { withColor } from './colors';
 import { el } from './dom';
@@ -139,18 +139,13 @@ export function lineChart(series: Series[]): HTMLElement {
     const crosshair = svg('line', { class: 'crosshair', y1: MARGIN.top, y2: bottom, visibility: 'hidden' });
     root.append(crosshair);
 
-    // Pro Spieler eine Gruppe: Kontrastring (nur sichtbar, wo nötig), Linie, Endpunkt, Name.
+    // Pro Spieler eine Gruppe: Linie, Endpunkt, Name.
     seriesGroups = series.map((s) => {
       const d = s.values.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(v)}`).join('');
       const ex = x(count - 1);
       const ey = y(s.values[count - 1]);
       const g = withColor(svg('g', { class: 'series' }), s.color);
-      g.append(
-        svg('path', { class: 'line-halo', d }),
-        svg('path', { class: 'line', d }),
-        svg('circle', { class: 'dot-halo', cx: ex, cy: ey, r: 6 }),
-        svg('circle', { class: 'dot', cx: ex, cy: ey, r: 4 }),
-      );
+      g.append(svg('path', { class: 'line', d }), svg('circle', { class: 'dot', cx: ex, cy: ey, r: 4 }));
       if (endLabels) {
         g.append(svg('text', { class: 'end-label', x: ex + LABEL_GAP, y: ey, 'dominant-baseline': 'middle' }, s.name));
       }
@@ -161,7 +156,7 @@ export function lineChart(series: Series[]): HTMLElement {
     // Markierungspunkte für die gewählte Runde (über den Linien).
     const focusDots = series.map((s) => {
       const g = withColor(svg('g', { visibility: 'hidden' }), s.color);
-      g.append(svg('circle', { class: 'dot-halo', r: 6 }), svg('circle', { class: 'dot', r: 4 }));
+      g.append(svg('circle', { class: 'dot', r: 4 }));
       return g;
     });
     topLayer = svg('g');

@@ -46,7 +46,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Akzent neutral (schwarz hell / weiß dunkel). Farbe tragen nur die Spieler;
   Rot nur für Minuspunkte/Fehler, Grün nur für Pluspunkte
 - Spielerfarben = Kartenfarben (`src/colors.ts`), die Farbe folgt dem Spieler, nicht der Platzierung;
-  Farben mit zu wenig Kontrast zur Fläche bekommen automatisch einen feinen Kontrastring (`withColor()`)
+  Farben werden exakt dargestellt (kein Kontrastring) – im Darkmode sind dunkle Farben bewusst schwächer sichtbar
 - Speicherformat versioniert (aktuell 2); ältere Stände werden beim Laden umgewandelt, nicht verworfen
 - Struktur (Tests als `*.test.ts` jeweils daneben):
   - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
@@ -56,7 +56,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
   - `src/dom.ts` – `el()`-Helfer zum Erzeugen von Elementen (Texte nie per `innerHTML`)
   - `src/chart.ts` – Verlaufsdiagramm (eigenes SVG); `src/chartMath.ts` – Achsen/Abstände
   - `src/format.ts` – Zahlenformat (echtes Minuszeichen „−", deutsches Komma)
-  - `src/colors.ts` – Kartenfarben, Farbvergabe, Kontrastring; `src/screens/colorPicker.ts` – Farbauswahl
+  - `src/colors.ts` – Kartenfarben, Farbvergabe; `src/screens/colorPicker.ts` – Farbauswahl
 
 ## Arbeitsweise
 

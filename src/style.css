@@ -17,9 +17,6 @@
   --positive: #248a3d;
   --bar: rgba(242, 242, 247, 0.72); /* Glas-Leiste unten */
 
-  /* Kontrastring um Spielerfarben, die auf der Fläche untergehen (siehe colors.ts → needsRing). */
-  --ring-on-light: rgba(0, 0, 0, 0.45);
-  --ring-on-dark: rgba(255, 255, 255, 0.7);
   --grid: #e5e5ea;
   --baseline: #c7c7cc;
 
@@ -175,19 +172,7 @@ h1 + .section-header {
 
 /* ---------- Spielerfarben ---------- */
 
-/* Elemente in Spielerfarbe (Klasse .pc, gesetzt von withColor() in colors.ts):
-   --c ist die Kartenfarbe, --ring der Kontrastring – nur für Farben, die im aktuellen Modus
-   auf der Fläche untergehen, sonst unsichtbar. Kinder erben beide Variablen. */
-.pc {
-  --ring: var(--ring-l, transparent);
-}
-
-@media (prefers-color-scheme: dark) {
-  .pc {
-    --ring: var(--ring-d, transparent);
-  }
-}
-
+/* Die Kartenfarbe kommt als Variable --c (gesetzt von withColor() in colors.ts). */
 .player-dot {
   display: inline-block;
   flex: none;
@@ -196,7 +181,6 @@ h1 + .section-header {
   margin-right: 0.45rem;
   border-radius: 50%;
   background: var(--c);
-  box-shadow: 0 0 0 1px var(--ring);
   vertical-align: 0.05em;
 }
 
@@ -221,9 +205,6 @@ h1 + .section-header {
   height: 1.75rem;
   border-radius: 50%;
   background: var(--c);
-  box-shadow:
-    0 0 0 1px var(--ring),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   transition: transform 100ms ease-out;
 }
 
@@ -326,9 +307,6 @@ h1 + .section-header {
   height: 2.75rem;
   border-radius: 50%;
   background: var(--c);
-  box-shadow:
-    0 0 0 1px var(--ring),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.08);
   transition: transform 100ms ease-out;
 }
 
@@ -336,7 +314,7 @@ h1 + .section-header {
   transform: scale(0.9);
 }
 
-/* Aktuelle Farbe: Ring in Akzentfarbe mit Abstand. */
+/* Aktuelle Farbe: Kreis in Textfarbe mit Abstand drumherum. */
 .swatch[aria-pressed='true'] .swatch-color {
   box-shadow:
     0 0 0 3px var(--surface),
@@ -600,7 +578,7 @@ input {
   font-weight: 600;
 }
 
-/* Nur der Name wird bei Überlänge mit „…" gekürzt – der Farbpunkt samt Ring bleibt ganz. */
+/* Nur der Name wird bei Überlänge mit „…" gekürzt – der Farbpunkt bleibt ganz. */
 .player-card h2 .name {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -767,7 +745,6 @@ input {
   height: 3px;
   border-radius: 1.5px;
   background: var(--c);
-  box-shadow: 0 0 0 1px var(--ring);
 }
 
 .chart-plot {
@@ -829,22 +806,12 @@ input {
   fill: var(--text);
 }
 
-.chart .line,
-.chart .line-halo {
-  fill: none;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
 .chart .line {
+  fill: none;
   stroke: var(--c);
   stroke-width: 2px;
-}
-
-/* Breitere Linie darunter in Ringfarbe = feiner Rand um schwer sichtbare Farben. */
-.chart .line-halo {
-  stroke: var(--ring);
-  stroke-width: 4px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 
 /* Punkte mit Ring in Kartenfarbe, damit sie auf kreuzenden Linien lesbar bleiben. */
@@ -852,10 +819,6 @@ input {
   fill: var(--c);
   stroke: var(--surface);
   stroke-width: 2px;
-}
-
-.chart .dot-halo {
-  fill: var(--ring);
 }
 
 /* Hervorheben: andere Spieler treten zurück. */
@@ -970,9 +933,7 @@ input {
 /* Rahmen in der Farbe des Spielers (nach innen gezeichnet, damit sich die Größe nicht ändert). */
 .stat-card {
   padding: 0.9rem 1rem 0.5rem;
-  box-shadow:
-    inset 0 0 0 2px var(--c),
-    inset 0 0 0 3px var(--ring);
+  box-shadow: inset 0 0 0 2px var(--c);
 }
 
 .stat-card h3 {
