@@ -30,7 +30,7 @@ export function startScreen({ onStart }: StartScreenActions): HTMLElement {
   });
 
   const list = el('ol', { className: 'player-list' });
-  const addButton = el('button', { type: 'button', className: 'btn secondary' }, '+ Spieler hinzufügen');
+  const addButton = el('button', { type: 'button', className: 'list-action' }, '+ Spieler hinzufügen');
   const error = el('p', { className: 'error', hidden: true }, 'Jeder Name darf nur einmal vorkommen.');
 
   addButton.addEventListener('click', () => {
@@ -45,7 +45,7 @@ export function startScreen({ onStart }: StartScreenActions): HTMLElement {
     list.replaceChildren(
       ...names.map((name, i) => {
         const input = el('input', {
-          className: 'input',
+          className: 'list-input',
           type: 'text',
           value: name,
           placeholder: placeholders[i],
@@ -76,9 +76,8 @@ export function startScreen({ onStart }: StartScreenActions): HTMLElement {
             type: 'button',
             className: 'icon-btn',
             disabled: names.length <= MIN_PLAYERS,
-            'aria-label': `Spieler ${i + 1} entfernen`,
+            'aria-label': `Spieler ${i + 1} entfernen`, // das ✕ zeichnet das CSS
           },
-          '✕',
         );
         remove.addEventListener('click', () => {
           names.splice(i, 1);
@@ -111,9 +110,8 @@ export function startScreen({ onStart }: StartScreenActions): HTMLElement {
     'main',
     { className: 'screen' },
     title,
-    el('p', { className: 'muted' }, 'Wer spielt mit?'),
-    list,
-    addButton,
+    el('p', { className: 'section-header' }, 'Wer spielt mit?'),
+    el('div', { className: 'group' }, list, addButton),
     el('footer', { className: 'actions' }, error, startButton),
   );
 }

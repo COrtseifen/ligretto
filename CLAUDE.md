@@ -37,6 +37,8 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Daten nur lokal im Browser (localStorage)
 - Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
+- Look im iOS-Stil: Apple-Systemfarben, gruppierte weiße Flächen, Akzent Systemrot;
+  Design-Leitlinien im Skill `.claude/skills/apple-design`
 - Struktur (Tests als `*.test.ts` jeweils daneben):
   - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
   - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück

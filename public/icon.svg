@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#c62828"/>
-  <rect x="150" y="96" width="212" height="320" rx="28" fill="#ffffff" transform="rotate(-10 256 256)"/>
-  <text x="256" y="320" font-family="Arial, Helvetica, sans-serif" font-size="200" font-weight="700" fill="#c62828" text-anchor="middle" transform="rotate(-10 256 256)">L</text>
+  <rect width="512" height="512" rx="112" fill="#ff3b30"/>
+  <rect x="150" y="96" width="212" height="320" rx="32" fill="#ffffff" transform="rotate(-10 256 256)"/>
+  <text x="256" y="320" font-family="-apple-system, 'Helvetica Neue', Arial, sans-serif" font-size="200" font-weight="700" fill="#ff3b30" text-anchor="middle" transform="rotate(-10 256 256)">L</text>
 </svg>

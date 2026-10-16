@@ -1,32 +1,42 @@
-/* Farben als CSS-Variablen: hell als Standard, dunkel per Systemeinstellung. */
+/* Gestaltung im Stil von iOS: hellgrauer Hintergrund mit weißen, abgerundeten Gruppen,
+   Systemschrift, eine Akzentfarbe (Systemrot). Farben als CSS-Variablen, dunkel per Systemeinstellung.
+   Werte orientieren sich an Apples Systemfarben (systemGroupedBackground, label, separator, …). */
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
-  --surface: #f3f4f6;
-  --text: #1f2328;
-  --muted: #5f6670;
-  --accent: #c62828;
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --fill: rgba(118, 118, 128, 0.12); /* Hintergrund von Eingabefeldern und grauen Buttons */
+  --text: #000000;
+  --muted: rgba(60, 60, 67, 0.6);
+  --separator: rgba(60, 60, 67, 0.29);
+  --accent: #ff3b30;
   --accent-text: #ffffff;
-  --border: #d0d4da;
-  --error: #b3261e;
-  --positive: #1b7f3b;
+  --error: #d70015; /* dunkleres Rot für Text auf Weiß – besser lesbar */
+  --positive: #248a3d;
+  --bar: rgba(242, 242, 247, 0.72); /* Glas-Leiste unten */
 
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 18px;
-  line-height: 1.5;
+  --radius-group: 1.25rem;
+  --radius-control: 0.75rem;
+
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px; /* iOS-Standardgröße für Fließtext */
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121417;
-    --surface: #1e2227;
-    --text: #e8eaed;
-    --muted: #9aa1aa;
-    --accent: #ef5350;
-    --accent-text: #121417;
-    --border: #353b43;
-    --error: #ff8a80;
-    --positive: #7ddc93;
+    --bg: #000000;
+    --surface: #1c1c1e;
+    --fill: rgba(118, 118, 128, 0.24);
+    --text: #ffffff;
+    --muted: rgba(235, 235, 245, 0.6);
+    --separator: rgba(84, 84, 88, 0.65);
+    --accent: #ff453a;
+    --error: #ff6961;
+    --positive: #30d158;
+    --bar: rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -46,24 +56,34 @@ body {
 /* Mobile-first: volle Breite mit Rand, auf großen Bildschirmen begrenzt und zentriert.
    Als Spalte, damit die Aktions-Buttons (footer) unten stehen – in Daumenreichweite. */
 .screen {
+  --gutter: max(1rem, env(safe-area-inset-left), env(safe-area-inset-right));
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   width: 100%;
   max-width: 40rem;
   margin: 0 auto;
-  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
-    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  padding: max(1rem, env(safe-area-inset-top)) var(--gutter) 0;
 }
 
+/* Große, linksbündige Überschrift wie in iOS-Apps. Große Schrift etwas enger setzen. */
 h1 {
-  margin: 0 0 0.5rem;
-  font-size: 1.6rem;
-  color: var(--accent);
+  margin: 0.5rem 0 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 .muted {
   color: var(--muted);
+}
+
+/* Zahlen in gleicher Breite, damit Punktestände beim Tippen nicht springen. */
+.input,
+.round-points,
+.total {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Überschrift mit versteckter Tipp-Geste: kein Doppeltipp-Zoom, keine Textauswahl. */
@@ -74,41 +94,80 @@ h1 {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Kleine graue Überschrift über einer Gruppe, wie in der Einstellungen-App. */
+.section-header {
+  margin: 0 1rem 0.4rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* Weiße, abgerundete Fläche auf grauem Grund. */
+.group {
+  overflow: hidden;
+  border-radius: var(--radius-group);
+  background: var(--surface);
+}
+
+[hidden] {
+  display: none !important;
+}
+
 /* ---------- Formularelemente ---------- */
 
 button,
 input {
   font: inherit; /* mind. 16px verhindert das automatische Hineinzoomen auf dem iPhone */
   color: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .input {
-  flex: 1;
   min-width: 0;
-  min-height: 3rem;
+  min-height: 2.75rem;
   padding: 0.5rem 0.75rem;
-  border: 2px solid var(--border);
-  border-radius: 0.6rem;
-  background: var(--surface);
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--fill);
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  transition: outline-color 120ms ease-out;
+  caret-color: var(--accent);
 }
 
 .input:focus {
-  outline: none;
-  border-color: var(--accent);
+  outline-color: var(--accent);
 }
 
 .input[aria-invalid='true'] {
-  border-color: var(--error);
+  outline-color: var(--error);
 }
 
+.input::placeholder {
+  color: var(--muted);
+}
+
+/* Buttons als „Pillen". Rückmeldung schon beim Drücken (:active), nicht erst beim Loslassen. */
 .btn {
   min-height: 3.25rem;
   padding: 0.5rem 1.25rem;
-  border: 2px solid transparent;
-  border-radius: 0.75rem;
+  border: none;
+  border-radius: 999px;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
+  transition:
+    transform 100ms ease-out,
+    opacity 100ms ease-out;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .btn.primary {
@@ -118,48 +177,127 @@ input {
 }
 
 .btn.secondary {
-  background: transparent;
-  border-color: var(--border);
+  background: var(--fill);
+  color: var(--accent);
 }
 
+.error {
+  margin: 0 0 0.6rem;
+  text-align: center;
+  color: var(--error);
+}
+
+/* ---------- Startbildschirm ---------- */
+
+.player-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Zeilen einer Gruppe, durch feine, links eingerückte Linien getrennt. */
+.player-list li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  padding-left: 1rem;
+}
+
+.player-list li::after,
+.list-action::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  transform: scaleY(0.5); /* Haarlinie */
+  background: var(--separator);
+}
+
+.player-list li:last-child::after {
+  display: none;
+}
+
+/* Namensfeld ohne Rahmen – die Zeile selbst ist das Feld. */
+.list-input {
+  flex: 1;
+  min-width: 0;
+  height: 3.25rem;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  caret-color: var(--accent);
+}
+
+.list-input::placeholder {
+  color: var(--muted);
+}
+
+.list-input[aria-invalid='true'] {
+  color: var(--error);
+}
+
+/* Runder grauer Entfernen-Button. */
 .icon-btn {
   flex: none;
+  display: grid;
+  place-items: center;
   width: 3rem;
   height: 3rem;
+  padding: 0;
   border: none;
-  border-radius: 0.6rem;
   background: transparent;
   color: var(--muted);
   cursor: pointer;
+  touch-action: manipulation;
+}
+
+.icon-btn::before {
+  content: '✕';
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: var(--fill);
+  font-size: 0.7rem;
+  font-weight: 700;
+  transition: transform 100ms ease-out;
+}
+
+.icon-btn:active::before {
+  transform: scale(0.85);
 }
 
 .icon-btn:disabled {
   visibility: hidden;
 }
 
-.error {
-  margin: 0 0 0.75rem;
-  color: var(--error);
+/* „+ Spieler hinzufügen" als letzte Zeile der Gruppe, in Akzentfarbe. */
+.list-action {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-[hidden] {
-  display: none !important;
+.list-action::before {
+  top: 0;
+  bottom: auto;
 }
 
-/* ---------- Startbildschirm ---------- */
-
-.player-list {
-  margin: 0 0 1rem;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.6rem;
-}
-
-.player-list li {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+.list-action:active {
+  background: var(--fill);
 }
 
 /* ---------- Runde erfassen ---------- */
@@ -172,8 +310,8 @@ input {
 }
 
 .player-card {
-  padding: 0.75rem;
-  border-radius: 0.9rem;
+  padding: 0.9rem 1rem 0.75rem;
+  border-radius: var(--radius-group);
   background: var(--surface);
 }
 
@@ -182,11 +320,13 @@ input {
   justify-content: space-between;
   align-items: baseline;
   gap: 0.5rem;
+  margin-bottom: 0.6rem;
 }
 
 .player-card h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.15rem;
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -201,30 +341,32 @@ input {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.25rem;
 }
 
 .field-label {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  color: var(--muted);
 }
 
 .field-hint {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--muted);
 }
 
 .number-input {
   width: 100%;
-  font-size: 1.5rem;
+  min-height: 3.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
   text-align: center;
-  background: var(--bg);
 }
 
 .round-points {
   display: block;
-  min-height: 1.5em;
-  margin-top: 0.4rem;
+  min-height: 1.4em;
+  margin-top: 0.5rem;
   font-weight: 600;
   text-align: right;
 }
@@ -238,7 +380,8 @@ input {
 }
 
 .status {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
   text-align: center;
 }
 
@@ -248,17 +391,60 @@ input {
   gap: 0.6rem;
 }
 
-.btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
+/* ---------- Aktionsleiste unten (Glas) ---------- */
 
-/* ---------- Aktionsleiste unten ---------- */
-
+/* Durchscheinende Leiste: Der Inhalt scrollt sichtbar darunter durch (backdrop-filter = Unschärfe
+   des Hintergrunds). Reicht bis an die Bildschirmränder und berücksichtigt den Home-Balken. */
 .actions {
   position: sticky;
   bottom: 0;
-  margin-top: auto;
-  padding-top: 1rem;
-  background: var(--bg);
+  margin: auto calc(-1 * var(--gutter)) 0;
+  padding: 0.75rem var(--gutter) max(0.75rem, env(safe-area-inset-bottom));
+  background: var(--bar);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 0 -0.5px 0 var(--separator);
+}
+
+/* Abstand zwischen Inhalt und Leiste (das Element direkt vor dem footer). */
+.screen > :nth-last-child(2) {
+  margin-bottom: 1.25rem;
+}
+
+/* ---------- Barrierefreiheit ---------- */
+
+/* Kein Glas, wo der Browser es nicht kann oder der Nutzer weniger Transparenz wünscht. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .actions {
+    background: var(--bg);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .actions {
+    background: var(--bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Mehr Kontrast: klare Ränder statt nur Flächen. */
+@media (prefers-contrast: more) {
+  .group,
+  .player-card,
+  .input {
+    outline: 1px solid var(--text);
+  }
+
+  .input:focus {
+    outline: 2px solid var(--accent);
+  }
+}
+
+/* Bewegung reduzieren: Rückmeldung nur über Deckkraft, ohne Skalieren. */
+@media (prefers-reduced-motion: reduce) {
+  .btn:active:not(:disabled),
+  .icon-btn:active::before {
+    transform: none;
+  }
 }
