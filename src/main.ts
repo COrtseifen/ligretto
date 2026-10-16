@@ -1,10 +1,12 @@
 import './style.css';
 import { registerSW } from 'virtual:pwa-register';
 import { el } from './dom';
-import { createGame } from './game';
+import { addRound, createGame, draftMatches, finishGame } from './game';
+import { roundScreen } from './screens/round';
 import { startScreen } from './screens/start';
-import { clearGame, loadGame, saveGame } from './storage';
-import type { Game } from './types';
+import { ranking } from './scoring';
+import { clearDraft, clearGame, loadDraft, loadGame, saveDraft, saveGame } from './storage';
+import type { Game, Round } from './types';
 
 // Service Worker registrieren (nur im Produktions-Build aktiv).
 // Bei einer neuen Version aktualisiert er sich automatisch.
@@ -12,40 +14,59 @@ registerSW({ immediate: true });
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
-/** Aktueller Zustand der App. Jede Änderung → speichern und `render()` aufrufen. */
+/** Aktueller Zustand der App. Änderungen laufen über `update()`. */
 let game: Game | null = loadGame();
 
 /** Zeichnet den passenden Bildschirm für den aktuellen Zustand neu. */
 function render() {
-  app.replaceChildren(game ? roundPlaceholder(game) : startScreen({ onStart }));
+  let screen: HTMLElement;
+  if (!game) screen = startScreen({ onStart: (names) => update(createGame(names)) });
+  else if (game.finished) screen = endPlaceholder(game);
+  else {
+    const draft = loadDraft();
+    screen = roundScreen(game, {
+      draft: draftMatches(game, draft) ? draft : null,
+      onDraftChange: saveDraft,
+      onContinue,
+      onFinish,
+    });
+  }
+
+  app.replaceChildren(screen);
   window.scrollTo(0, 0);
 }
 
-function onStart(names: string[]) {
-  game = createGame(names);
-  saveGame(game);
+/** Neuen Zustand übernehmen, speichern und neu zeichnen. Ein angefangener Zwischenstand ist damit erledigt. */
+function update(next: Game | null) {
+  game = next;
+  if (game) {
+    saveGame(game);
+    clearDraft();
+  } else {
+    clearGame();
+  }
   render();
 }
 
-function onAbort() {
-  if (!confirm('Spiel wirklich abbrechen? Der Spielstand wird gelöscht.')) return;
-  game = null;
-  clearGame();
-  render();
+function onContinue(round: Round) {
+  update(addRound(game!, round));
 }
 
-// Vorläufig, bis „Runde erfassen" (Schritt 5) fertig ist.
-function roundPlaceholder(game: Game): HTMLElement {
-  const abort = el('button', { type: 'button', className: 'btn secondary' }, 'Spiel abbrechen');
-  abort.addEventListener('click', onAbort);
+function onFinish(round: Round | null) {
+  update(finishGame(round ? addRound(game!, round) : game!));
+}
+
+// Vorläufig, bis die Endübersicht (Schritt 6) fertig ist.
+function endPlaceholder(game: Game): HTMLElement {
+  const newGame = el('button', { type: 'button', className: 'btn primary' }, 'Neues Spiel');
+  newGame.addEventListener('click', () => update(null));
   return el(
     'main',
     { className: 'screen' },
-    el('h1', {}, 'Ligretto'),
-    el('p', {}, `Runde ${game.rounds.length + 1} – es spielen:`),
-    el('ul', {}, ...game.players.map((name) => el('li', {}, name))),
-    el('p', { className: 'muted' }, 'Die Rundeneingabe folgt im nächsten Schritt.'),
-    el('footer', { className: 'actions' }, abort),
+    el('h1', {}, 'Spielende'),
+    el('p', { className: 'muted' }, `${game.rounds.length} Runden gespielt`),
+    el('ol', {}, ...ranking(game).map((s) => el('li', {}, `${s.place}. ${s.name}: ${s.total}`))),
+    el('footer', { className: 'actions' }, newGame),
   );
 }
 

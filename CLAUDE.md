@@ -16,7 +16,9 @@ Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespiel
 
 - Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–6 möglich)
   - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → „Christian", „Sarah", „Timo", „Steffi" (kein sichtbarer Button)
-- Runde erfassen: pro Spieler Tischkarten und Restkarten als große Zahlenfelder (Zifferntastatur, min/max geprüft)
+- Runde erfassen: pro Spieler Restkarten und Tischkarten als große Zahlenfelder (Zifferntastatur, min/max geprüft)
+  - Reihenfolge Restkarten → Tischkarten: Restkarten stehen sofort fest, Tischkarten müssen erst sortiert werden
+  - Zwischenstand der Runde wird bei jeder Eingabe gespeichert
   - Rundenpunkte werden sofort angezeigt, bevor die Runde gespeichert wird
   - Danach „Weiterspielen" (nur wenn alle Werte gültig → neue Runde) oder „Spiel beenden" (→ Endübersicht)
 - Übersicht: Gesamtstand pro Spieler, sortiert nach Platzierung

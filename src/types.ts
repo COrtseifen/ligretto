@@ -14,3 +14,11 @@ export interface Game {
   rounds: Round[];
   finished: boolean;
 }
+
+/** Noch nicht gespeicherte Eingaben der laufenden Runde, so wie sie in den Feldern stehen. */
+export interface RoundDraft {
+  /** Rundennummer (ab 1), zu der die Eingaben gehören. */
+  round: number;
+  /** Ein Eintrag pro Spieler mit dem rohen Feldinhalt. */
+  entries: { tisch: string; rest: string }[];
+}
