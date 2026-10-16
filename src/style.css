@@ -15,6 +15,20 @@
   --positive: #248a3d;
   --bar: rgba(242, 242, 247, 0.72); /* Glas-Leiste unten */
 
+  /* Spielerfarben (feste Reihenfolge, für Farbsehschwäche geprüft – je Modus eigene Stufen). */
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --grid: #e5e5ea;
+  --baseline: #c7c7cc;
+
+  /* Trennlinien: 1px; auf hochauflösenden Displays (Handy) feiner. Halbe Pixel auf normalen
+     Bildschirmen würden mal auf 1, mal auf 0 gerundet – Linien wären dann nur teilweise sichtbar. */
+  --hairline: 1px;
+
   --radius-group: 1.25rem;
   --radius-control: 0.75rem;
 
@@ -37,6 +51,21 @@
     --error: #ff6961;
     --positive: #30d158;
     --bar: rgba(0, 0, 0, 0.6);
+
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --grid: #2c2c2e;
+    --baseline: #48484a;
+  }
+}
+
+@media (min-resolution: 2dppx) {
+  :root {
+    --hairline: 0.5px;
   }
 }
 
@@ -96,9 +125,62 @@ h1 {
 
 /* Kleine graue Überschrift über einer Gruppe, wie in der Einstellungen-App. */
 .section-header {
-  margin: 0 1rem 0.4rem;
+  margin: 1.75rem 1rem 0.4rem;
   font-size: 0.8rem;
+  font-weight: 400;
   color: var(--muted);
+}
+
+h1 + .section-header {
+  margin-top: 0;
+}
+
+.subtitle {
+  margin: -0.75rem 0 1rem;
+}
+
+/* Überschrift mit Navigationsknopf rechts daneben. */
+.title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.nav-btn {
+  min-height: 2.75rem;
+  padding: 0 0.25rem;
+  border: none;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 100ms ease-out;
+}
+
+.nav-btn:active {
+  opacity: 0.5;
+}
+
+/* ---------- Spielerfarben ---------- */
+
+/* Eine Klasse setzt die Farbe als Variable --c; Punkt, Linie und Legende nutzen sie. */
+.series-1 { --c: var(--series-1); }
+.series-2 { --c: var(--series-2); }
+.series-3 { --c: var(--series-3); }
+.series-4 { --c: var(--series-4); }
+.series-5 { --c: var(--series-5); }
+.series-6 { --c: var(--series-6); }
+
+.player-dot {
+  display: inline-block;
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.45rem;
+  border-radius: 50%;
+  background: var(--c);
+  vertical-align: 0.05em;
 }
 
 /* Weiße, abgerundete Fläche auf grauem Grund. */
@@ -211,8 +293,7 @@ input {
   left: 1rem;
   right: 0;
   bottom: 0;
-  height: 1px;
-  transform: scaleY(0.5); /* Haarlinie */
+  height: var(--hairline);
   background: var(--separator);
 }
 
@@ -391,6 +472,303 @@ input {
   gap: 0.6rem;
 }
 
+/* ---------- Spielstand / Spielende ---------- */
+
+.ranking {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ranking li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0 1rem;
+}
+
+.ranking li + li::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  right: 0;
+  top: 0;
+  height: var(--hairline);
+  background: var(--separator);
+}
+
+.ranking .place {
+  width: 1.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ranking .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking .total {
+  font-weight: 600;
+}
+
+.ranking li:first-child .name,
+.ranking li:first-child .total {
+  font-weight: 700;
+}
+
+/* Diagramm */
+.chart-card {
+  padding: 0.9rem 1rem 0.5rem;
+}
+
+.chart {
+  margin: 0;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.chart-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Legende zeigt dieselbe Form wie das Diagramm: eine kurze Linie. */
+.legend-key,
+.line-key {
+  flex: none;
+  width: 0.9rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--c);
+}
+
+.chart-plot {
+  position: relative;
+}
+
+.chart-plot svg {
+  display: block;
+  overflow: visible;
+  touch-action: pan-y; /* waagerecht wischen wählt die Runde, senkrecht scrollt die Seite */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chart-plot svg:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.chart .grid,
+.chart .baseline,
+.chart .crosshair {
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}
+
+.chart .grid {
+  stroke: var(--grid);
+}
+
+.chart .baseline {
+  stroke: var(--baseline);
+}
+
+.chart .crosshair {
+  stroke: var(--muted);
+}
+
+.chart .axis-label {
+  font-size: 12px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .end-label {
+  font-size: 12px;
+  fill: var(--text);
+}
+
+.chart .line {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Punkte mit Ring in Kartenfarbe, damit sie auf kreuzenden Linien lesbar bleiben. */
+.chart .dot {
+  fill: var(--c);
+  stroke: var(--surface);
+  stroke-width: 2px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  min-width: 8rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  box-shadow:
+    0 0 0 var(--hairline) var(--separator),
+    0 6px 20px rgba(0, 0, 0, 0.15);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.chart-tooltip p {
+  margin: 0 0 0.25rem;
+  color: var(--muted);
+}
+
+.chart-tooltip ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chart-tooltip li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.chart-tooltip strong {
+  min-width: 2.25rem;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rundentabelle – seitlich scrollbar, Rundenspalte bleibt stehen. */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.rounds {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.rounds th,
+.rounds td {
+  padding: 0.55rem 0.75rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rounds thead th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.rounds tbody tr + tr > *,
+.rounds tbody tr:first-child > * {
+  box-shadow: inset 0 var(--hairline) 0 var(--separator);
+}
+
+.rounds tbody th,
+.rounds tfoot th {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* Erste Spalte klebt beim seitlichen Scrollen. */
+.rounds th:first-child {
+  position: sticky;
+  left: 0;
+  text-align: left;
+  background: var(--surface);
+}
+
+.rounds tfoot > tr > * {
+  box-shadow: inset 0 1px 0 var(--baseline);
+  font-weight: 700;
+}
+
+.rounds tfoot th {
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Statistik */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem;
+}
+
+/* Rahmen in der Farbe des Spielers (nach innen gezeichnet, damit sich die Größe nicht ändert). */
+.stat-card {
+  padding: 0.9rem 1rem 0.5rem;
+  box-shadow: inset 0 0 0 2px var(--c);
+}
+
+.stat-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.stat-card h3 .name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-card h3 .muted {
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.stat-card dl {
+  margin: 0;
+}
+
+.stat-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  box-shadow: inset 0 var(--hairline) 0 var(--separator);
+}
+
+.stat-card dt {
+  color: var(--muted);
+}
+
+.stat-card dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Aktionsleiste unten (Glas) ---------- */
 
 /* Durchscheinende Leiste: Der Inhalt scrollt sichtbar darunter durch (backdrop-filter = Unschärfe
@@ -403,7 +781,7 @@ input {
   background: var(--bar);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   backdrop-filter: blur(20px) saturate(180%);
-  box-shadow: 0 -0.5px 0 var(--separator);
+  box-shadow: 0 calc(-1 * var(--hairline)) 0 var(--separator);
 }
 
 /* Abstand zwischen Inhalt und Leiste (das Element direkt vor dem footer). */

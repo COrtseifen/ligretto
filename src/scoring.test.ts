@@ -144,6 +144,11 @@ describe('playerStats', () => {
     });
   });
 
+  it('zählt es für jeden, wenn mehrere in derselben Runde 0 Restkarten haben', () => {
+    const game = makeGame(['Anna', 'Ben', 'Cleo'], [[[10, 0], [12, 0], [5, 4]]]);
+    expect(playerStats(game).map((s) => s?.finishedRounds)).toEqual([1, 1, 0]);
+  });
+
   it('zählt Runden ohne Restkarten', () => {
     const game = makeGame(['Anna'], [[[10, 0]], [[8, 0]], [[3, 4]]]);
     expect(playerStats(game)[0]?.finishedRounds).toBe(2);

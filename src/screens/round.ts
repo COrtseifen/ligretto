@@ -1,5 +1,7 @@
 // Runde erfassen: pro Spieler Rest- und Tischkarten eingeben, dann weiterspielen oder beenden.
+import { seriesClass } from '../chart';
 import { el } from '../dom';
+import { formatInt, formatSigned } from '../format';
 import { parseCardCount } from '../game';
 import {
   isValidRestkarten,
@@ -22,6 +24,8 @@ export interface RoundScreenActions {
   onContinue(round: Round): void;
   /** Spiel beenden – mit der erfassten Runde oder `null`, wenn die Runde leer blieb. */
   onFinish(round: Round | null): void;
+  /** Spielstand (Rangliste, Verlauf, Tabelle) anzeigen. */
+  onShowStandings(): void;
 }
 
 type Field = 'tisch' | 'rest';
@@ -41,13 +45,9 @@ function readField(raw: string, field: Field): { empty: boolean; value: number |
   return { empty: false, value: FIELDS[field].isValid(n) ? n : null };
 }
 
-function formatSigned(n: number): string {
-  return n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0';
-}
-
 export function roundScreen(
   game: Game,
-  { draft, onDraftChange, onContinue, onFinish }: RoundScreenActions,
+  { draft, onDraftChange, onContinue, onFinish, onShowStandings }: RoundScreenActions,
 ): HTMLElement {
   const roundNumber = game.rounds.length + 1;
   const currentTotals = totals(game);
@@ -110,8 +110,8 @@ export function roundScreen(
       el(
         'header',
         {},
-        el('h2', {}, name),
-        el('span', { className: 'muted' }, `Gesamt: ${currentTotals[p]}`),
+        el('h2', {}, el('span', { className: `player-dot ${seriesClass(p)}`, 'aria-hidden': 'true' }), name),
+        el('span', { className: 'muted total' }, `Gesamt: ${formatInt(currentTotals[p])}`),
       ),
       el('div', { className: 'fields' }, ...fields),
       points,
@@ -121,6 +121,10 @@ export function roundScreen(
   const status = el('p', { className: 'muted status' });
   const continueButton = el('button', { type: 'button', className: 'btn primary' }, 'Weiterspielen');
   const finishButton = el('button', { type: 'button', className: 'btn secondary' }, 'Spiel beenden');
+
+  // „Stand" oben rechts, wie ein Navigationsknopf in iOS – erst sinnvoll, wenn es schon Runden gibt.
+  const standingsButton = el('button', { type: 'button', className: 'nav-btn', hidden: game.rounds.length === 0 }, 'Stand');
+  standingsButton.addEventListener('click', onShowStandings);
 
   /** Liest alle Felder; liefert die Runde, wenn alles gültig ist. */
   function collect() {
@@ -155,7 +159,7 @@ export function roundScreen(
         return;
       }
       const pts = roundPoints(s.tisch.value, s.rest.value);
-      out.textContent = `Runde ${formatSigned(pts)} → ${currentTotals[p] + pts}`;
+      out.textContent = `Runde ${formatSigned(pts)} → ${formatInt(currentTotals[p] + pts)}`;
       out.className = `round-points ${pts < 0 ? 'negative' : 'positive'}`;
     });
 
@@ -189,7 +193,7 @@ export function roundScreen(
   return el(
     'main',
     { className: 'screen' },
-    el('h1', {}, `Runde ${roundNumber}`),
+    el('div', { className: 'title-row' }, el('h1', {}, `Runde ${roundNumber}`), standingsButton),
     el('div', { className: 'player-cards' }, ...cards),
     el('footer', { className: 'actions' }, status, el('div', { className: 'button-row' }, finishButton, continueButton)),
   );
