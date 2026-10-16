@@ -39,12 +39,16 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
 - Look im iOS-Stil: Apple-Systemfarben, gruppierte weiße Flächen, Akzent Systemrot;
   Design-Leitlinien im Skill `.claude/skills/apple-design`
+- Spielerfarben: feste Reihenfolge `--series-1…6`, gegen Farbsehschwäche geprüft (dataviz-Skill);
+  die Farbe folgt dem Spieler (Eingabereihenfolge), nicht der Platzierung
 - Struktur (Tests als `*.test.ts` jeweils daneben):
   - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
   - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück
   - `src/types.ts` – Datentypen; `src/scoring.ts` – Punkte/Statistik; `src/game.ts` – Spieler & Spielablauf
   - `src/storage.ts` – Speichern im localStorage; `src/tap.ts` – Mehrfach-Tipp-Erkennung
   - `src/dom.ts` – `el()`-Helfer zum Erzeugen von Elementen (Texte nie per `innerHTML`)
+  - `src/chart.ts` – Verlaufsdiagramm (eigenes SVG); `src/chartMath.ts` – Achsen/Abstände
+  - `src/format.ts` – Zahlenformat (echtes Minuszeichen „−", deutsches Komma)
 
 ## Arbeitsweise
 
