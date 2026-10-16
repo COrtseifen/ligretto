@@ -35,7 +35,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Daten nur lokal im Browser (localStorage)
 - Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
-- Struktur: `src/main.ts` (Oberfläche), `src/scoring.ts` (Rechenlogik) + `*.test.ts` daneben
+- Struktur: `src/main.ts` (Oberfläche), `src/types.ts` (Datentypen), `src/scoring.ts` (Rechenlogik) + `*.test.ts` daneben
 
 ## Arbeitsweise
 
