@@ -40,6 +40,11 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Vor größeren Änderungen erst einen kurzen Plan vorschlagen
 - Rechenlogik (Punkte) in eigener Datei, getrennt von der Oberfläche, mit Unit-Tests (Vitest)
 - Keine zusätzlichen Abhängigkeiten ohne Rückfrage
+- Halte diese CLAUDE.md aktuell: Wenn wir eine wichtige Entscheidung treffen
+  (Technik, Struktur, Konventionen, geänderte Anforderungen) oder einen neuen
+  Befehl einführen, schlag mir vor, sie hier einzutragen.
+- Halte die Datei kurz und übersichtlich: nur dauerhaft gültige Infos, keine
+  Protokolle oder erledigten Aufgaben.
 
 ## Befehle
 
