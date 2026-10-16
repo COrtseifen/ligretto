@@ -1,0 +1,2 @@
+# ligretto
+Punktezähler für Ligretto
