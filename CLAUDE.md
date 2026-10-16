@@ -6,23 +6,25 @@ Wird auf dem Handy am Spieltisch benutzt, muss also offline funktionieren und mi
 ## Spielregeln (Punktewertung)
 
 Pro Runde wird für jeden Spieler erfasst:
-- **Tischkarten**: Karten, die noch auf dem Ligretto-Stapel liegen → je **-2 Punkte**
-- **Abgelegte Karten**: Karten, die der Spieler in die Mitte gelegt hat → je **+1 Punkt**
+- **Tischkarten**: Karten, die der Spieler in die Mitte abgelegt hat → je **+1 Punkt** (erlaubt 0–40)
+- **Restkarten**: Karten, die noch auf dem Ligretto-Stapel liegen → je **−2 Punkte** (erlaubt 0–10)
 
-Rundenpunkte = abgelegte Karten − 2 × Tischkarten
-Der Gesamtstand ist die Summe aller Runden.
+Rundenpunkte = Tischkarten − 2 × Restkarten
+Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespielt wird, bis man aufhört.
 
 ## Funktionen (erste Version)
 
 - Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–6 möglich)
-- Neue Runde erfassen: pro Spieler Tischkarten und abgelegte Karten eingeben
-  - Große Eingabefelder bzw. +/−-Buttons, gut am Handy bedienbar
+  - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → „Christian", „Sarah", „Timo", „Steffi" (kein sichtbarer Button)
+- Runde erfassen: pro Spieler Tischkarten und Restkarten als große Zahlenfelder (Zifferntastatur, min/max geprüft)
   - Rundenpunkte werden sofort angezeigt, bevor die Runde gespeichert wird
+  - Danach „Weiterspielen" (nur wenn alle Werte gültig → neue Runde) oder „Spiel beenden" (→ Endübersicht)
 - Übersicht: Gesamtstand pro Spieler, sortiert nach Platzierung
-- Rundenverlauf als Tabelle (wie auf dem Block)
+- Rundenverlauf als Tabelle (wie auf dem Block) und als Liniendiagramm (eigenes SVG, eine Farbe pro Spieler)
+- Endübersicht mit Statistik pro Spieler: höchstes Rundenplus, meiste Tischkarten in einer Runde,
+  größte Minuspunkte, Anzahl beendeter Runden (Restkarten = 0), Ø Tischkarten, Ø Restkarten
 - Letzte Runde bearbeiten oder löschen (Tippfehler korrigieren)
 - Spielstand wird automatisch gespeichert (localStorage) und überlebt Neuladen/Schließen
-- Optional: Zielpunktzahl festlegen, Gewinner wird angezeigt, sobald sie erreicht ist
 
 Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 
@@ -31,7 +33,9 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Vite + TypeScript, ohne UI-Framework (Vanilla), damit es klein und verständlich bleibt
 - vite-plugin-pwa für Manifest und Service Worker (offline-fähig, installierbar)
 - Daten nur lokal im Browser (localStorage)
-- Mobile-first, funktioniert im Hoch- und Querformat, heller und dunkler Modus
+- Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
+- Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
+- Struktur: `src/main.ts` (Oberfläche), `src/scoring.ts` (Rechenlogik) + `*.test.ts` daneben
 
 ## Arbeitsweise
 
@@ -50,5 +54,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 
 - `npm install` – Abhängigkeiten installieren
 - `npm run dev` – Entwicklungsserver starten
-- `npm run build` – Produktions-Build nach `dist/`
-- `npm test` – Tests ausführen
+- `npm run build` – Typprüfung + Produktions-Build nach `dist/`
+- `npm run preview` – Produktions-Build lokal ansehen (mit Service Worker, zum Offline-Testen)
+- `npm test` – Tests einmal ausführen
+- `npm run test:watch` – Tests bei jeder Änderung neu ausführen

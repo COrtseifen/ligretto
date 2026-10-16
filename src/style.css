@@ -1,0 +1,59 @@
+/* Farben als CSS-Variablen: hell als Standard, dunkel per Systemeinstellung. */
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --surface: #f3f4f6;
+  --text: #1f2328;
+  --muted: #5f6670;
+  --accent: #c62828;
+  --accent-text: #ffffff;
+  --border: #d0d4da;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --surface: #1e2227;
+    --text: #e8eaed;
+    --muted: #9aa1aa;
+    --accent: #ef5350;
+    --accent-text: #121417;
+    --border: #353b43;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Mobile-first: volle Breite mit Rand, auf großen Bildschirmen begrenzt und zentriert. */
+.screen {
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.6rem;
+  color: var(--accent);
+}
+
+.muted {
+  color: var(--muted);
+}
