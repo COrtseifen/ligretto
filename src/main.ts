@@ -1,10 +1,11 @@
 import './style.css';
 import { registerSW } from 'virtual:pwa-register';
-import { addRound, createGame, draftMatches, finishGame } from './game';
+import { addRound, createGame, draftMatches, finishGame, removeLastRound, replaceLastRound } from './game';
 import { overviewScreen } from './screens/overview';
-import { roundScreen } from './screens/round';
+import { editRoundScreen, roundScreen } from './screens/round';
 import { startScreen } from './screens/start';
 import { clearDraft, clearGame, loadDraft, loadGame, saveDraft, saveGame } from './storage';
+import { hideToast, showToast } from './toast';
 import type { Game, Round } from './types';
 
 // Service Worker registrieren (nur im Produktions-Build aktiv).
@@ -13,18 +14,33 @@ registerSW({ immediate: true });
 
 const app = document.querySelector<HTMLDivElement>('#app')!;
 
+type View = 'round' | 'standings' | 'edit';
+
 /** Aktueller Zustand der App. Änderungen laufen über `update()`. */
 let game: Game | null = loadGame();
-/** Während eines laufenden Spiels: Rundeneingabe oder Spielstand anzeigen (wird nicht gespeichert). */
-let view: 'round' | 'standings' = 'round';
+/** Welcher Bildschirm zum Spiel gezeigt wird (wird nicht gespeichert). Ein beendetes Spiel zeigt immer die Übersicht. */
+let view: View = 'round';
+/** Wohin „Abbrechen"/„Speichern" beim Bearbeiten zurückführt. */
+let editReturn: Exclude<View, 'edit'> = 'round';
 
 /** Zeichnet den passenden Bildschirm für den aktuellen Zustand neu. */
 function render() {
   let screen: HTMLElement;
   if (!game) {
     screen = startScreen({ onStart: (names, colors) => update(createGame(names, colors)) });
+  } else if (view === 'edit' && game.rounds.length > 0) {
+    screen = editRoundScreen(game, {
+      onSave: (round) => update(replaceLastRound(game!, round), { view: editReturn, keepDraft: true }),
+      onCancel: () => show(editReturn),
+      onDelete: deleteLastRound,
+    });
   } else if (game.finished || view === 'standings') {
-    screen = overviewScreen(game, { onBack: () => show('round'), onNewGame: () => update(null) });
+    screen = overviewScreen(game, {
+      onBack: () => show('round'),
+      onNewGame: () => update(null),
+      onEditLast: editLastRound,
+      onDeleteLast: deleteLastRound,
+    });
   } else {
     const draft = loadDraft();
     screen = roundScreen(game, {
@@ -33,6 +49,7 @@ function render() {
       onContinue,
       onFinish,
       onShowStandings: () => show('standings'),
+      onEditLast: editLastRound,
     });
   }
 
@@ -40,18 +57,23 @@ function render() {
   window.scrollTo(0, 0);
 }
 
-function show(next: typeof view) {
+function show(next: View) {
   view = next;
   render();
 }
 
-/** Neuen Zustand übernehmen, speichern und neu zeichnen. Ein angefangener Zwischenstand ist damit erledigt. */
-function update(next: Game | null) {
+/**
+ * Neuen Zustand übernehmen, speichern und neu zeichnen.
+ * Standardmäßig ist ein angefangener Zwischenstand damit erledigt; beim Bearbeiten der
+ * letzten Runde bleibt er erhalten (`keepDraft`), weil sich die Rundennummer nicht ändert.
+ */
+function update(next: Game | null, { view: nextView = 'round', keepDraft = false }: { view?: View; keepDraft?: boolean } = {}) {
+  hideToast(); // ein „Rückgängig" bezieht sich nur auf den Stand direkt nach dem Löschen
   game = next;
-  view = 'round';
+  view = nextView;
   if (game) {
     saveGame(game);
-    clearDraft();
+    if (!keepDraft) clearDraft();
   } else {
     clearGame();
   }
@@ -64,6 +86,29 @@ function onContinue(round: Round) {
 
 function onFinish(round: Round | null) {
   update(finishGame(round ? addRound(game!, round) : game!));
+}
+
+function editLastRound() {
+  editReturn = view === 'standings' ? 'standings' : 'round';
+  show('edit');
+}
+
+/** Löscht die letzte Runde sofort und bietet einige Sekunden lang „Rückgängig" an. */
+function deleteLastRound() {
+  const before = game!;
+  const draftBefore = loadDraft();
+  const number = before.rounds.length;
+  const back = view === 'edit' ? editReturn : view;
+
+  update(removeLastRound(before), { view: back });
+  showToast({
+    message: `Runde ${number} gelöscht`,
+    actionLabel: 'Rückgängig',
+    onAction: () => {
+      if (draftBefore) saveDraft(draftBefore);
+      update(before, { view, keepDraft: true });
+    },
+  });
 }
 
 render();

@@ -423,6 +423,29 @@ input {
   color: var(--accent);
 }
 
+/* Löschen: roter Text – Rot steht in der App für „etwas geht verloren/Minus". */
+.btn.destructive {
+  color: var(--error);
+}
+
+/* Unauffälliger Text-Button innerhalb einer Zeile („Bearbeiten"). */
+.link-btn {
+  padding: 0.5rem 0.25rem;
+  margin: -0.5rem -0.25rem;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.link-btn:active {
+  opacity: 0.5;
+}
+
 .error {
   margin: 0 0 0.6rem;
   text-align: center;
@@ -636,6 +659,12 @@ input {
   margin: 0 0 0.6rem;
   font-size: 0.85rem;
   text-align: center;
+}
+
+/* „Runde 2 gespeichert · Bearbeiten" unter der Überschrift. */
+.last-round {
+  margin: -0.5rem 0 1rem;
+  font-size: 0.9rem;
 }
 
 .button-row {
@@ -980,6 +1009,60 @@ input {
   font-variant-numeric: tabular-nums;
 }
 
+/* „Runde N bearbeiten" / „Runde N löschen" unter der Rundentabelle. */
+.round-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+/* ---------- Hinweis oben („Runde 3 gelöscht · Rückgängig") ---------- */
+
+.toast {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: 0.6rem 0.6rem 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow:
+    0 0 0 var(--hairline) var(--separator),
+    0 8px 28px rgba(0, 0, 0, 0.18);
+  transform: translateX(-50%);
+  animation: toast-in 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -1rem);
+  }
+}
+
+.toast-action {
+  min-height: 2.25rem;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.toast-action:active {
+  opacity: 0.7;
+}
+
 /* ---------- Aktionsleiste unten (Glas) ---------- */
 
 /* Durchscheinende Leiste: Der Inhalt scrollt sichtbar darunter durch (backdrop-filter = Unschärfe
@@ -1035,5 +1118,11 @@ input {
   .btn:active:not(:disabled),
   .icon-btn:active::before {
     transform: none;
+  }
+
+  /* Einblenden ohne Bewegung (das Farbauswahl-Blatt und der Hinweis gleiten sonst herein). */
+  .sheet,
+  .toast {
+    animation: fade-in 150ms ease-out;
   }
 }

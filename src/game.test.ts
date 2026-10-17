@@ -8,6 +8,8 @@ import {
   finishGame,
   normalizeNames,
   parseCardCount,
+  removeLastRound,
+  replaceLastRound,
 } from './game';
 
 /** Spiel mit den ersten n Kartenfarben. */
@@ -78,6 +80,45 @@ describe('addRound', () => {
 describe('finishGame', () => {
   it('markiert das Spiel als beendet', () => {
     expect(finishGame(newGame(['Anna', 'Ben'])).finished).toBe(true);
+  });
+});
+
+describe('letzte Runde bearbeiten/löschen', () => {
+  const r1 = [
+    { tisch: 12, rest: 0 },
+    { tisch: 6, rest: 5 },
+  ];
+  const r2 = [
+    { tisch: 9, rest: 2 },
+    { tisch: 20, rest: 0 },
+  ];
+  const fixed = [
+    { tisch: 9, rest: 1 },
+    { tisch: 20, rest: 0 },
+  ];
+  const game = addRound(addRound(newGame(['Anna', 'Ben']), r1), r2);
+
+  it('ersetzt nur die letzte Runde, ohne das alte Spiel zu verändern', () => {
+    expect(replaceLastRound(game, fixed).rounds).toEqual([r1, fixed]);
+    expect(game.rounds).toEqual([r1, r2]);
+  });
+
+  it('entfernt die letzte Runde', () => {
+    expect(removeLastRound(game).rounds).toEqual([r1]);
+  });
+
+  it('behält den Status „beendet" bei', () => {
+    expect(removeLastRound(finishGame(game)).finished).toBe(true);
+    expect(replaceLastRound(finishGame(game), fixed).finished).toBe(true);
+  });
+
+  it('lehnt ab, wenn es noch keine Runde gibt', () => {
+    expect(() => removeLastRound(newGame(['Anna', 'Ben']))).toThrow();
+    expect(() => replaceLastRound(newGame(['Anna', 'Ben']), fixed)).toThrow();
+  });
+
+  it('lehnt eine Runde mit falscher Spielerzahl ab', () => {
+    expect(() => replaceLastRound(game, [fixed[0]])).toThrow();
   });
 });
 

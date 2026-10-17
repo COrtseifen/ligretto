@@ -12,6 +12,18 @@ export interface OverviewActions {
   onBack(): void;
   /** Neues Spiel beginnen (beendetes Spiel). */
   onNewGame(): void;
+  /** Letzte Runde bearbeiten bzw. löschen. */
+  onEditLast(): void;
+  onDeleteLast(): void;
+}
+
+/** „Runde N bearbeiten" / „Runde N löschen" unter der Rundentabelle. */
+function lastRoundActions(n: number, onEdit: () => void, onDelete: () => void): HTMLElement {
+  const edit = el('button', { type: 'button', className: 'btn secondary' }, `Runde ${n} bearbeiten`);
+  const remove = el('button', { type: 'button', className: 'btn secondary destructive' }, `Runde ${n} löschen`);
+  edit.addEventListener('click', onEdit);
+  remove.addEventListener('click', onDelete);
+  return el('div', { className: 'round-actions' }, edit, remove);
 }
 
 function section(title: string, ...content: HTMLElement[]): HTMLElement[] {
@@ -100,7 +112,10 @@ function statsCards(game: Game): HTMLElement {
   );
 }
 
-export function overviewScreen(game: Game, { onBack, onNewGame }: OverviewActions): HTMLElement {
+export function overviewScreen(
+  game: Game,
+  { onBack, onNewGame, onEditLast, onDeleteLast }: OverviewActions,
+): HTMLElement {
   const n = game.rounds.length;
   const content: HTMLElement[] = [
     el('h1', {}, game.finished ? 'Spielende' : 'Spielstand'),
@@ -114,6 +129,7 @@ export function overviewScreen(game: Game, { onBack, onNewGame }: OverviewAction
     content.push(
       ...section('Verlauf', el('div', { className: 'group chart-card' }, lineChart(series))),
       ...section('Runden', roundsTable(game)),
+      lastRoundActions(n, onEditLast, onDeleteLast),
     );
     if (game.finished) content.push(...section('Statistik', statsCards(game)));
   }

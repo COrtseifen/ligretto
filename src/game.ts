@@ -45,6 +45,18 @@ export function finishGame(game: Game): Game {
   return { ...game, finished: true };
 }
 
+/** Ersetzt die letzte Runde (Tippfehler korrigieren). */
+export function replaceLastRound(game: Game, round: Round): Game {
+  if (game.rounds.length === 0) throw new Error('Es gibt noch keine Runde');
+  return addRound({ ...game, rounds: game.rounds.slice(0, -1) }, round);
+}
+
+/** Entfernt die letzte Runde. */
+export function removeLastRound(game: Game): Game {
+  if (game.rounds.length === 0) throw new Error('Es gibt noch keine Runde');
+  return { ...game, rounds: game.rounds.slice(0, -1) };
+}
+
 /** Gehört der Zwischenstand zur aktuell laufenden Runde dieses Spiels? */
 export function draftMatches(game: Game, draft: RoundDraft | null): draft is RoundDraft {
   return (

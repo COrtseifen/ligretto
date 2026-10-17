@@ -29,7 +29,8 @@ Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespiel
   Antippen der Legende hebt einen Spieler hervor; Nulllinie kräftiger, sobald es Minuspunkte gab)
 - Endübersicht mit Statistik pro Spieler (Rahmen in Spielerfarbe): höchstes Rundenplus, meiste Tischkarten
   in einer Runde, größte Minuspunkte, Anzahl beendeter Runden (Restkarten = 0), Ø Restkarten, Ø Tischkarten
-- Letzte Runde bearbeiten oder löschen (Tippfehler korrigieren)
+- Letzte Runde bearbeiten oder löschen (Tippfehler korrigieren): im Spielstand/in der Endübersicht und per
+  „Bearbeiten" in der Rundeneingabe; Löschen sofort mit „Rückgängig"-Hinweis statt Nachfrage
 - Spielstand wird automatisch gespeichert (localStorage) und überlebt Neuladen/Schließen
 
 Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
@@ -53,6 +54,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
   - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück
   - `src/types.ts` – Datentypen; `src/scoring.ts` – Punkte/Statistik; `src/game.ts` – Spieler & Spielablauf
   - `src/storage.ts` – Speichern im localStorage; `src/tap.ts` – Mehrfach-Tipp-Erkennung
+  - `src/toast.ts` – Hinweis oben mit optionaler Aktion („Rückgängig")
   - `src/dom.ts` – `el()`-Helfer zum Erzeugen von Elementen (Texte nie per `innerHTML`)
   - `src/chart.ts` – Verlaufsdiagramm (eigenes SVG); `src/chartMath.ts` – Achsen/Abstände
   - `src/format.ts` – Zahlenformat (echtes Minuszeichen „−", deutsches Komma)
