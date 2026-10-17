@@ -61,6 +61,7 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
   - `src/chart.ts` – Verlaufsdiagramm (eigenes SVG); `src/chartMath.ts` – Achsen/Abstände
   - `src/format.ts` – Zahlenformat (echtes Minuszeichen „−", deutsches Komma)
   - `src/colors.ts` – Kartenfarben, Farbvergabe; `src/screens/colorPicker.ts` – Farbauswahl
+  - `public/icon.svg` – App-Icon (Motiv); `scripts/render-icons.ps1` + `scripts/icons/maskable.svg` – PNG-Icons
 
 ## Arbeitsweise
 
@@ -83,3 +84,5 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - `npm run preview` – Produktions-Build lokal ansehen (http://localhost:4173/ligretto/, mit Service Worker, zum Offline-Testen)
 - `npm test` – Tests einmal ausführen
 - `npm run test:watch` – Tests bei jeder Änderung neu ausführen
+- `powershell -ExecutionPolicy Bypass -File scripts/render-icons.ps1` – PNG-Icons aus den SVG-Vorlagen neu
+  erzeugen (nutzt Chrome/Edge headless, kein npm-Paket)

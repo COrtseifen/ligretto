@@ -11,7 +11,8 @@ export default defineConfig({
     // der alle App-Dateien cached – dadurch läuft die App offline.
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      // Dateien aus public/, die zusätzlich offline verfügbar sein sollen.
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Ligretto-Punktezähler',
         short_name: 'Ligretto',
@@ -21,7 +22,14 @@ export default defineConfig({
         start_url: '.',
         theme_color: '#f2f2f7',
         background_color: '#f2f2f7',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        // PNGs erzeugt scripts/render-icons.ps1 aus public/icon.svg. Android braucht 192/512 px,
+        // „maskable" ist das Motiv mit Rand, damit runde oder tropfenförmige Zuschnitte nichts abschneiden.
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml' },
+        ],
       },
     }),
   ],
