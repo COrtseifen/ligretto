@@ -64,9 +64,13 @@ function backgroundGlow(): HTMLElement {
   return el(
     'div',
     { className: 'screen-glow', 'aria-hidden': 'true' },
-    el('span', { className: 'glow-blue' }),
-    el('span', { className: 'glow-green' }),
-    el('span', { className: 'glow-red' }),
+    el(
+      'div',
+      { className: 'screen-glow-inner' },
+      el('span', { className: 'glow-blue' }),
+      el('span', { className: 'glow-green' }),
+      el('span', { className: 'glow-red' }),
+    ),
   );
 }
 

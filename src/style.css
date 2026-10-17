@@ -459,7 +459,9 @@ input {
 
 /* Schimmer in den Box-Farben wie im App-Icon, oben hinter Titel und Inhalt (eingefügt von
    render() in main.ts). Bewusst dezent: stark weichgezeichnet, geringe Deckkraft, nach unten
-   ausgeblendet. Die Stärke regelt --glow-opacity. */
+   ausgeblendet. Die Stärke regelt --glow-opacity.
+   Er steht fest am oberen Bildschirmrand (position: fixed): Der Inhalt scrollt darüber hinweg,
+   die Glasflächen lassen ihn dabei durchscheinen. */
 .screen {
   position: relative;
   --glow-opacity: 0.32;
@@ -472,7 +474,7 @@ input {
 }
 
 .screen-glow {
-  position: absolute;
+  position: fixed;
   inset: 0 0 auto;
   height: 22rem;
   overflow: hidden;
@@ -480,6 +482,15 @@ input {
   opacity: var(--glow-opacity);
   -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
   mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+
+/* Innerer Rahmen so breit wie die App-Spalte, damit der Schimmer auf dem PC mittig über
+   dem Inhalt liegt statt an den Fensterrändern. */
+.screen-glow-inner {
+  position: relative;
+  max-width: 40rem;
+  height: 100%;
+  margin: 0 auto;
 }
 
 .screen-glow span {
