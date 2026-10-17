@@ -15,8 +15,6 @@ Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespiel
 ## Funktionen (erste Version)
 
 - Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–12 möglich – eine Kartenfarbe pro Spieler)
-  - Startbildschirm greift das App-Icon auf: dezenter Farbschimmer in den Box-Farben hinter dem Titel,
-    Namensliste als Glas
   - Jeder Spieler wählt eine Kartenfarbe aus den 3 Ligretto-Boxen (Blau, Grün, Rot mit je 4 Farben), keine doppelt;
     neue Spieler bekommen automatisch die nächste freie Farbe
   - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → Christian (Lila), Sarah (Pink),
@@ -44,8 +42,10 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Daten nur lokal im Browser (localStorage)
 - Mobile-first und responsive (Smartphone hoch/quer bis Desktop)
 - Darkmode folgt der Systemeinstellung (`prefers-color-scheme`), Farben als CSS-Variablen in `src/style.css`
-- Look im iOS-Stil: Apple-Systemfarben, gruppierte weiße Flächen;
+- Look im iOS-Stil: Apple-Systemfarben, gruppierte Flächen;
   Design-Leitlinien im Skill `.claude/skills/apple-design`
+- Auf allen Bildschirmen dezenter Farbschimmer in den Box-Farben oben (greift das App-Icon auf, Stärke über
+  `--glow-opacity`); Gruppen und Karten als Glas (`--glass`), bei reduzierter Transparenz deckend
 - Akzent neutral (schwarz hell / weiß dunkel). Farbe tragen nur die Spieler;
   Rot nur für Minuspunkte/Fehler, Grün nur für Pluspunkte
 - Spielerfarben = Kartenfarben (`src/colors.ts`), die Farbe folgt dem Spieler, nicht der Platzierung;

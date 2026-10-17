@@ -16,6 +16,10 @@
   --error: #d70015; /* dunkleres Rot für Text auf Weiß – besser lesbar */
   --positive: #248a3d;
   --bar: rgba(242, 242, 247, 0.72); /* Glas-Leiste unten */
+  /* Glasflächen (Gruppen, Karten): Kartenfarbe leicht durchscheinend. --glass-solid ist dieselbe
+     Farbe deckend – für Elemente, die genau so aussehen sollen, aber nichts durchlassen dürfen. */
+  --glass: color-mix(in srgb, var(--surface) 78%, transparent);
+  --glass-solid: color-mix(in srgb, var(--surface) 78%, var(--bg));
 
   --grid: #e5e5ea;
   --baseline: #c7c7cc;
@@ -347,7 +351,6 @@ h1 + .section-header {
 .group {
   overflow: hidden;
   border-radius: var(--radius-group);
-  background: var(--surface);
 }
 
 [hidden] {
@@ -452,22 +455,23 @@ input {
   color: var(--error);
 }
 
-/* ---------- Startbildschirm ---------- */
+/* ---------- Farbschimmer (auf jedem Bildschirm) ---------- */
 
-/* Schimmer in den Box-Farben (wie im App-Icon) hinter Titel und Liste. Bewusst dezent:
-   stark weichgezeichnet, geringe Deckkraft, nach unten ausgeblendet. */
-.start {
+/* Schimmer in den Box-Farben wie im App-Icon, oben hinter Titel und Inhalt (eingefügt von
+   render() in main.ts). Bewusst dezent: stark weichgezeichnet, geringe Deckkraft, nach unten
+   ausgeblendet. Die Stärke regelt --glow-opacity. */
+.screen {
   position: relative;
   --glow-opacity: 0.32;
 }
 
 @media (prefers-color-scheme: dark) {
-  .start {
+  .screen {
     --glow-opacity: 0.45;
   }
 }
 
-.start-glow {
+.screen-glow {
   position: absolute;
   inset: 0 0 auto;
   height: 22rem;
@@ -478,7 +482,7 @@ input {
   mask-image: linear-gradient(to bottom, #000 40%, transparent);
 }
 
-.start-glow span {
+.screen-glow span {
   position: absolute;
   width: 55%;
   aspect-ratio: 1;
@@ -505,20 +509,23 @@ input {
 }
 
 /* Inhalt liegt über dem Schimmer. */
-.start > :not(.start-glow) {
+.screen > :not(.screen-glow) {
   position: relative;
 }
 
-.start > .actions {
+.screen > .actions {
   position: sticky;
 }
 
-/* Namensliste als Glas: der Schimmer scheint leicht durch. */
-.start .group {
-  background: color-mix(in srgb, var(--surface) 78%, transparent);
+/* Flächen als Glas: der Schimmer scheint leicht durch. */
+.group,
+.player-card {
+  background: var(--glass);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   backdrop-filter: blur(20px) saturate(160%);
 }
+
+/* ---------- Startbildschirm ---------- */
 
 .player-list {
   margin: 0;
@@ -647,7 +654,6 @@ input {
 .player-card {
   padding: 0.9rem 1rem 0.75rem;
   border-radius: var(--radius-group);
-  background: var(--surface);
 }
 
 .player-card header {
@@ -735,8 +741,13 @@ input {
 
 .button-row {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  /* Linker Button so breit wie sein Text („Spiel beenden" bricht sonst um), rechter füllt den Rest. */
+  grid-template-columns: auto 1fr;
   gap: 0.6rem;
+}
+
+.button-row .btn {
+  white-space: nowrap;
 }
 
 /* ---------- Spielstand / Spielende ---------- */
@@ -912,7 +923,7 @@ input {
 /* Punkte mit Ring in Kartenfarbe, damit sie auf kreuzenden Linien lesbar bleiben. */
 .chart .dot {
   fill: var(--c);
-  stroke: var(--surface);
+  stroke: var(--glass-solid);
   stroke-width: 2px;
 }
 
@@ -1005,7 +1016,7 @@ input {
   position: sticky;
   left: 0;
   text-align: left;
-  background: var(--surface);
+  background: var(--glass-solid);
 }
 
 .rounds tfoot > tr > * {
@@ -1160,7 +1171,8 @@ input {
 
 @media (prefers-reduced-transparency: reduce) {
   .actions,
-  .start .group {
+  .group,
+  .player-card {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -1169,7 +1181,8 @@ input {
     background: var(--bg);
   }
 
-  .start .group {
+  .group,
+  .player-card {
     background: var(--surface);
   }
 }

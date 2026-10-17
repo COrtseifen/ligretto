@@ -1,5 +1,6 @@
 import './style.css';
 import { registerSW } from 'virtual:pwa-register';
+import { el } from './dom';
 import { addRound, createGame, draftMatches, finishGame, removeLastRound, replaceLastRound } from './game';
 import { overviewScreen } from './screens/overview';
 import { editRoundScreen, roundScreen } from './screens/round';
@@ -53,8 +54,20 @@ function render() {
     });
   }
 
+  screen.prepend(backgroundGlow());
   app.replaceChildren(screen);
   window.scrollTo(0, 0);
+}
+
+/** Weicher Schimmer in den drei Box-Farben oben auf jedem Bildschirm – greift das App-Icon auf. */
+function backgroundGlow(): HTMLElement {
+  return el(
+    'div',
+    { className: 'screen-glow', 'aria-hidden': 'true' },
+    el('span', { className: 'glow-blue' }),
+    el('span', { className: 'glow-green' }),
+    el('span', { className: 'glow-red' }),
+  );
 }
 
 function show(next: View) {
