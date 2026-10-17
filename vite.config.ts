@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // GitHub Pages liefert die App unter https://cortseifen.github.io/ligretto/ aus – also im
+  // Unterordner /ligretto/. Vite setzt diesen Pfad vor alle Dateiverweise im Build.
+  base: '/ligretto/',
   plugins: [
     // Erzeugt beim Build das Web-App-Manifest und einen Service Worker,
     // der alle App-Dateien cached – dadurch läuft die App offline.

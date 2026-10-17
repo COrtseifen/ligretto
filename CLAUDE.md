@@ -49,6 +49,8 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 - Spielerfarben = Kartenfarben (`src/colors.ts`), die Farbe folgt dem Spieler, nicht der Platzierung;
   Farben werden exakt dargestellt (kein Kontrastring) – im Darkmode sind dunkle Farben bewusst schwächer sichtbar
 - Speicherformat versioniert (aktuell 2); ältere Stände werden beim Laden umgewandelt, nicht verworfen
+- Veröffentlichung auf GitHub Pages (https://cortseifen.github.io/ligretto/) per GitHub Actions bei jedem Push
+  auf `main`, nur wenn die Tests grün sind; die App liegt unter `/ligretto/` (`base` in vite.config.ts)
 - Struktur (Tests als `*.test.ts` jeweils daneben):
   - `src/main.ts` – App-Zustand (`game`) und `render()`, wählt den Bildschirm
   - `src/screens/` – ein Bildschirm pro Datei, gibt ein HTML-Element zurück
@@ -76,8 +78,8 @@ Noch nicht geplant: Accounts, Server, Synchronisierung zwischen Geräten.
 ## Befehle
 
 - `npm install` – Abhängigkeiten installieren
-- `npm run dev` – Entwicklungsserver starten
+- `npm run dev` – Entwicklungsserver starten (http://localhost:5173/ligretto/)
 - `npm run build` – Typprüfung + Produktions-Build nach `dist/`
-- `npm run preview` – Produktions-Build lokal ansehen (mit Service Worker, zum Offline-Testen)
+- `npm run preview` – Produktions-Build lokal ansehen (http://localhost:4173/ligretto/, mit Service Worker, zum Offline-Testen)
 - `npm test` – Tests einmal ausführen
 - `npm run test:watch` – Tests bei jeder Änderung neu ausführen

@@ -1,0 +1,45 @@
+# Veröffentlicht die App bei jedem Push auf main auf GitHub Pages.
+# Ablauf: Abhängigkeiten installieren → Tests → Build → dist/ veröffentlichen.
+# Schlägt ein Test fehl, wird nichts veröffentlicht.
+name: Deploy auf GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # erlaubt auch einen manuellen Start unter „Actions"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Nur eine Veröffentlichung gleichzeitig; eine laufende wird nicht abgebrochen.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
