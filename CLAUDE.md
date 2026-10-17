@@ -15,6 +15,8 @@ Der Gesamtstand ist die Summe aller Runden. Es gibt keine Zielpunktzahl: gespiel
 ## Funktionen (erste Version)
 
 - Neues Spiel starten, Spielernamen eingeben (Standard: 4 Spieler, 2–12 möglich – eine Kartenfarbe pro Spieler)
+  - Startbildschirm greift das App-Icon auf: dezenter Farbschimmer in den Box-Farben hinter dem Titel,
+    Namensliste als Glas
   - Jeder Spieler wählt eine Kartenfarbe aus den 3 Ligretto-Boxen (Blau, Grün, Rot mit je 4 Farben), keine doppelt;
     neue Spieler bekommen automatisch die nächste freie Farbe
   - Verstecktes Vorbelegen: 5× schnell auf die Überschrift tippen → Christian (Lila), Sarah (Pink),

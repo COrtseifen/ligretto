@@ -454,6 +454,72 @@ input {
 
 /* ---------- Startbildschirm ---------- */
 
+/* Schimmer in den Box-Farben (wie im App-Icon) hinter Titel und Liste. Bewusst dezent:
+   stark weichgezeichnet, geringe Deckkraft, nach unten ausgeblendet. */
+.start {
+  position: relative;
+  --glow-opacity: 0.32;
+}
+
+@media (prefers-color-scheme: dark) {
+  .start {
+    --glow-opacity: 0.45;
+  }
+}
+
+.start-glow {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 22rem;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: var(--glow-opacity);
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+
+.start-glow span {
+  position: absolute;
+  width: 55%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(50px);
+}
+
+.glow-blue {
+  left: -10%;
+  top: 4rem;
+  background: #17b6dc;
+}
+
+.glow-green {
+  left: 22%;
+  top: -2rem;
+  background: #7ba93d;
+}
+
+.glow-red {
+  right: -10%;
+  top: 4rem;
+  background: #c53c55;
+}
+
+/* Inhalt liegt über dem Schimmer. */
+.start > :not(.start-glow) {
+  position: relative;
+}
+
+.start > .actions {
+  position: sticky;
+}
+
+/* Namensliste als Glas: der Schimmer scheint leicht durch. */
+.start .group {
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+}
+
 .player-list {
   margin: 0;
   padding: 0;
@@ -1093,10 +1159,18 @@ input {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .actions {
-    background: var(--bg);
+  .actions,
+  .start .group {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  .actions {
+    background: var(--bg);
+  }
+
+  .start .group {
+    background: var(--surface);
   }
 }
 

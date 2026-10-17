@@ -145,9 +145,19 @@ export function startScreen({ onStart }: StartScreenActions): HTMLElement {
 
   renderList();
 
+  // Weicher Schimmer in den drei Box-Farben hinter dem Titel – greift das App-Icon auf.
+  const glow = el(
+    'div',
+    { className: 'start-glow', 'aria-hidden': 'true' },
+    el('span', { className: 'glow-blue' }),
+    el('span', { className: 'glow-green' }),
+    el('span', { className: 'glow-red' }),
+  );
+
   return el(
     'main',
-    { className: 'screen' },
+    { className: 'screen start' },
+    glow,
     title,
     el('p', { className: 'section-header' }, 'Wer spielt mit? Tippe auf den Kreis, um die Kartenfarbe zu wählen.'),
     el('div', { className: 'group' }, list, addButton),
